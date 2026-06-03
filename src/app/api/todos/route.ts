@@ -25,12 +25,21 @@ export async function POST(req: Request) {
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const userId = (session.user as any).id;
-    const { title, date } = await req.json();
+    const body = await req.json();
+    const { title, date, reminderTime } = body;
 
-    if (!title) return NextResponse.json({ error: "Title is required" }, { status: 400 });
+    if (!title) {
+      return NextResponse.json({ error: "Missing title" }, { status: 400 });
+    }
 
     await connectToDatabase();
-    const newTodo = await Todo.create({ userId, title, date: date || null });
+
+    const newTodo = await Todo.create({
+      userId,
+      title,
+      date,
+      reminderTime,
+    });
 
     return NextResponse.json({ todo: newTodo }, { status: 201 });
   } catch (error: any) {

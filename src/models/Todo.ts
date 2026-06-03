@@ -18,6 +18,10 @@ const TodoSchema = new mongoose.Schema({
     type: String, // YYYY-MM-DD, optional
     required: false,
   },
+  reminderTime: {
+    type: String, // HH:MM, optional
+    required: false,
+  },
 }, { timestamps: true });
 
 export const Todo = mongoose.models.Todo || mongoose.model("Todo", TodoSchema);

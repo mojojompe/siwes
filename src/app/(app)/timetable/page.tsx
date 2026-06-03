@@ -2,248 +2,232 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, Plus, X, Loader2, CheckSquare } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, X, Loader2, CheckSquare, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
 
-interface Todo {
-  _id: string;
-  title: string;
-  completed: boolean;
-  date?: string;
-}
+interface Todo { _id: string; title: string; completed: boolean; date?: string; reminderTime?: string; }
+const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
 
 export default function TimetablePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState(true);
   
-  const [showAdd, setShowAdd] = useState(false);
+  const [showDayView, setShowDayView] = useState(false);
   const [selectedDateStr, setSelectedDateStr] = useState("");
   const [newTitle, setNewTitle] = useState("");
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    fetchTodos();
-  }, []);
+  useEffect(() => { fetchTodos(); }, []);
 
   const fetchTodos = async () => {
     try {
       const res = await fetch("/api/todos");
-      if (res.ok) {
-        const data = await res.json();
-        setTodos(data.todos);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getDaysInMonth = (year: number, month: number) => {
-    return new Date(year, month + 1, 0).getDate();
-  };
-
-  const getFirstDayOfMonth = (year: number, month: number) => {
-    return new Date(year, month, 1).getDay();
-  };
-
-  const nextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
-  };
-
-  const prevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+      if (res.ok) { const data = await res.json(); setTodos(data.todos); }
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
   };
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-  const daysInMonth = getDaysInMonth(year, month);
-  const firstDay = getFirstDayOfMonth(year, month);
-  
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year, month, 1).getDay();
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const blanks = Array.from({ length: firstDay }, (_, i) => i);
-
   const monthName = currentDate.toLocaleString("default", { month: "long" });
 
-  const openAddForDate = (day: number) => {
-    const paddedMonth = (month + 1).toString().padStart(2, '0');
-    const paddedDay = day.toString().padStart(2, '0');
-    setSelectedDateStr(`${year}-${paddedMonth}-${paddedDay}`);
+  const openDayView = (day: number) => {
+    const d = `${year}-${(month + 1).toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+    setSelectedDateStr(d);
     setNewTitle("");
-    setShowAdd(true);
+    setShowDayView(true);
   };
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleAddTask = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
-    
     setSaving(true);
     try {
       await fetch("/api/todos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: newTitle, date: selectedDateStr }),
       });
-      setShowAdd(false);
-      fetchTodos();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSaving(false);
-    }
+      setNewTitle(""); fetchTodos();
+    } catch (err) { console.error(err); }
+    finally { setSaving(false); }
   };
 
-  if (loading) {
-    return <Skeleton />;
-  }
+  const toggleTodo = async (id: string, current: boolean) => {
+    setTodos(todos.map(t => t._id === id ? { ...t, completed: !current } : t));
+    try {
+      await fetch(`/api/todos/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed: !current }),
+      });
+    } catch { fetchTodos(); }
+  };
+
+  const deleteTodo = async (id: string) => {
+    setTodos(todos.filter(t => t._id !== id));
+    try { await fetch(`/api/todos/${id}`, { method: "DELETE" }); }
+    catch { fetchTodos(); }
+  };
+
+  if (loading) return <Skeleton />;
+
+  const dayTodos = todos.filter(t => t.date === selectedDateStr);
+  const selectedDateDisplay = selectedDateStr 
+    ? new Date(selectedDateStr).toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })
+    : "";
 
   return (
-    <main className="p-4 sm:p-8 flex-1 flex flex-col">
-      <header className="mb-6 flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 text-blue-600 flex items-center justify-center">
-              <CalendarIcon className="w-7 h-7" />
-            </div>
-            <h1 className="text-2xl font-extrabold text-slate-800">Timetable</h1>
-          </div>
-          <p className="text-slate-500 font-medium text-sm">
-            Schedule your actions and reminders
-          </p>
-        </div>
-      </header>
+    <main className="p-5 pb-32 flex-1 mesh-bg min-h-screen flex flex-col">
+      <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="mb-5 pt-3">
+        <h1 className="heading-display text-[26px] text-[#1A1A2E]">Timetable</h1>
+        <p className="text-[13px] font-medium text-black/40 mt-0.5">Tap any day to manage actions</p>
+      </motion.header>
 
-      <div className="bg-white/80 backdrop-blur-2xl rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-white overflow-hidden flex-1 flex flex-col">
-        <div className="p-4 border-b border-white/50 flex items-center justify-between bg-white/40">
-          <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            {monthName} <span className="text-slate-400 font-medium">{year}</span>
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, ...spring }}
+        className="glass-card rounded-[1.75rem] overflow-hidden flex-1 flex flex-col">
+        
+        {/* Calendar Header */}
+        <div className="bg-[#3B5BDB] px-5 py-4 flex items-center justify-between">
+          <h2 className="heading-display text-[18px] text-white">
+            {monthName} <span className="font-400 opacity-70">{year}</span>
           </h2>
           <div className="flex gap-1">
-            <button onClick={prevMonth} className="p-2 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors">
+            <motion.button whileTap={{ scale: 0.85 }} onClick={() => setCurrentDate(new Date(year, month - 1, 1))}
+              className="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors">
               <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button onClick={nextMonth} className="p-2 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors">
+            </motion.button>
+            <motion.button whileTap={{ scale: 0.85 }} onClick={() => setCurrentDate(new Date(year, month + 1, 1))}
+              className="w-9 h-9 rounded-xl bg-white/15 hover:bg-white/25 flex items-center justify-center text-white transition-colors">
               <ChevronRight className="w-5 h-5" />
-            </button>
+            </motion.button>
           </div>
         </div>
-        
-        <div className="grid grid-cols-7 border-b border-white/50 bg-white/30">
-          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
-            <div key={d} className="py-3 text-center text-xs font-bold text-slate-400 uppercase tracking-wider">
-              {d}
-            </div>
+
+        {/* Day headers */}
+        <div className="grid grid-cols-7 bg-[#3B5BDB]/8 border-b border-black/5">
+          {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
+            <div key={i} className="py-2.5 text-center text-[11px] font-bold text-black/35 uppercase tracking-wider">{d}</div>
           ))}
         </div>
 
-        <div className="grid grid-cols-7 flex-1 auto-rows-fr">
-          {blanks.map(b => (
-            <div key={`blank-${b}`} className="border-r border-b border-white/50 bg-white/20" />
-          ))}
+        {/* Grid */}
+        <div className="grid grid-cols-7 flex-1">
+          {blanks.map(b => <div key={`b${b}`} className="border-r border-b border-black/5 bg-black/1" />)}
           {days.map(d => {
-            const paddedMonth = (month + 1).toString().padStart(2, '0');
-            const paddedDay = d.toString().padStart(2, '0');
-            const dateStr = `${year}-${paddedMonth}-${paddedDay}`;
-            const dayTodos = todos.filter(t => t.date === dateStr);
+            const dateStr = `${year}-${(month + 1).toString().padStart(2, "0")}-${d.toString().padStart(2, "0")}`;
+            const dtodos = todos.filter(t => t.date === dateStr);
             const isToday = new Date().toISOString().split("T")[0] === dateStr;
 
             return (
-              <div 
-                key={d} 
-                onClick={() => openAddForDate(d)}
-                className={`border-r border-b border-white/50 p-2 relative group cursor-pointer transition-colors hover:bg-blue-50/40 flex flex-col min-h-[80px] sm:min-h-[100px] ${
-                  isToday ? "bg-blue-50/20" : ""
+              <motion.div
+                key={d}
+                whileTap={{ scale: 0.94, backgroundColor: "rgba(59,91,219,0.06)" }}
+                onClick={() => openDayView(d)}
+                className={`border-r border-b border-black/5 p-2 relative cursor-pointer group flex flex-col min-h-[72px] transition-colors hover:bg-[#3B5BDB]/4 ${
+                  isToday ? "bg-[#3B5BDB]/5" : ""
                 }`}
               >
-                <div className="flex justify-between items-start mb-1">
-                  <span className={`text-xs sm:text-sm font-bold w-6 h-6 flex items-center justify-center rounded-full ${
-                    isToday ? "bg-blue-600 text-white shadow-md" : "text-slate-600 group-hover:text-blue-600"
-                  }`}>
-                    {d}
-                  </span>
-                  <Plus className="w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`text-[12px] font-bold w-6 h-6 flex items-center justify-center rounded-full transition-all ${
+                    isToday
+                      ? "bg-[#3B5BDB] text-white shadow-[0_2px_8px_rgba(59,91,219,0.4)]"
+                      : "text-black/50 group-hover:text-[#3B5BDB]"
+                  }`}>{d}</span>
+                  {dtodos.length > 0 && (
+                    <span className="mono text-[9px] font-bold text-[#3B5BDB] opacity-60">{dtodos.length}</span>
+                  )}
                 </div>
-                
-                <div className="flex-1 overflow-y-auto space-y-1 no-scrollbar mt-1">
-                  {dayTodos.map(todo => (
-                    <div 
-                      key={todo._id} 
-                      className={`text-[10px] sm:text-xs px-1.5 py-1 rounded-md truncate font-medium border ${
-                        todo.completed 
-                          ? "bg-slate-100 text-slate-400 border-slate-200 line-through" 
-                          : "bg-white text-slate-700 border-slate-200 shadow-sm"
-                      }`}
-                    >
-                      {todo.title}
-                    </div>
+                <div className="space-y-0.5 overflow-hidden">
+                  {dtodos.slice(0, 2).map(t => (
+                    <div key={t._id} className={`text-[9px] px-1.5 py-0.5 rounded font-medium truncate ${
+                      t.completed ? "text-black/30 line-through" : "bg-[#3B5BDB]/10 text-[#3B5BDB]"
+                    }`}>{t.title}</div>
                   ))}
+                  {dtodos.length > 2 && (
+                    <div className="text-[9px] text-black/30 font-bold mono">+{dtodos.length - 2}</div>
+                  )}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
-      </div>
+      </motion.div>
 
+      {/* Day View Sheet */}
       <AnimatePresence>
-        {showAdd && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              className="bg-white/80 backdrop-blur-2xl w-full max-w-sm rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-white overflow-hidden"
-            >
-              <div className="flex justify-between items-center p-4 border-b border-slate-100">
-                <h2 className="font-bold text-slate-800 flex items-center gap-2">
-                  <CheckSquare className="w-5 h-5 text-blue-600" />
-                  Add Action
-                </h2>
-                <button onClick={() => setShowAdd(false)} className="p-2 text-slate-400 hover:text-slate-700 bg-slate-50 hover:bg-slate-100 rounded-full transition-colors">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-              <form onSubmit={handleSave} className="p-4 flex flex-col gap-4">
-                <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 flex items-center gap-3">
-                  <CalendarIcon className="w-5 h-5 text-slate-400" />
-                  <span className="text-sm font-bold text-slate-600">
-                    {new Date(selectedDateStr).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                  </span>
+        {showDayView && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowDayView(false)} className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px]" />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={spring}
+              className="fixed bottom-0 left-0 right-0 z-50 glass-card rounded-t-[2rem] flex flex-col max-h-[85vh]">
+              
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-black/5 flex-shrink-0">
+                <div>
+                  <h3 className="heading-display text-[18px]">Day Schedule</h3>
+                  <p className="mono text-[12px] text-black/40 mt-0.5">{selectedDateDisplay}</p>
                 </div>
-                <input
-                  type="text"
-                  required
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="Task, Reminder, or Action"
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-800"
-                />
-                
-                <div className="flex justify-end gap-2 mt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowAdd(false)}
-                    className="px-5 py-2.5 text-slate-600 font-bold hover:bg-slate-100 rounded-xl text-sm transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-sm flex items-center gap-2 disabled:opacity-70 text-sm transition-colors"
-                  >
-                    {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save"}
-                  </button>
+                <motion.button whileTap={{ scale: 0.85 }} onClick={() => setShowDayView(false)}
+                  className="w-8 h-8 rounded-full bg-black/6 flex items-center justify-center text-black/40">
+                  <X className="w-4 h-4" />
+                </motion.button>
+              </div>
+
+              {/* Tasks List */}
+              <div className="flex-1 overflow-y-auto p-5 space-y-3">
+                {dayTodos.length === 0 ? (
+                  <div className="text-center py-6">
+                    <p className="text-[14px] text-black/40 font-medium">No actions scheduled for this day.</p>
+                  </div>
+                ) : (
+                  <AnimatePresence>
+                    {dayTodos.map(t => (
+                      <motion.div key={t._id} layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+                        className={`flex items-center gap-3 p-3.5 bg-white/60 rounded-[1rem] border border-white/80 group ${t.completed ? "opacity-50" : ""}`}>
+                        <motion.button whileTap={{ scale: 0.8 }} transition={spring} onClick={() => toggleTodo(t._id, t.completed)}
+                          className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                            t.completed ? "bg-[#3B5BDB] border-[#3B5BDB] shadow-[0_2px_8px_rgba(59,91,219,0.3)]" : "border-black/20 hover:border-[#3B5BDB]/50"
+                          }`}>
+                          {t.completed && (
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none">
+                              <path d="M2.5 7L5.5 10L11.5 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          )}
+                        </motion.button>
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-[14px] font-600 truncate transition-all ${t.completed ? "line-through text-black/35" : "text-[#1A1A2E]"}`}>{t.title}</p>
+                        </div>
+                        <motion.button whileTap={{ scale: 0.8 }} onClick={() => deleteTodo(t._id)}
+                          className="p-1.5 rounded-lg text-black/30 hover:text-red-500 hover:bg-red-50 transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </motion.button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                )}
+              </div>
+
+              {/* Add New Task Form */}
+              <form onSubmit={handleAddTask} className="p-5 pb-28 border-t border-black/5 bg-black/5 flex-shrink-0">
+                <div className="flex items-center gap-2">
+                  <input type="text" required value={newTitle} onChange={(e) => setNewTitle(e.target.value)}
+                    placeholder="New action..."
+                    className="flex-1 px-4 py-3 input-premium text-[14px] font-medium" />
+                  <motion.button type="submit" disabled={saving} whileTap={{ scale: 0.95 }}
+                    className="w-12 h-12 btn-primary rounded-xl flex items-center justify-center disabled:opacity-60 flex-shrink-0">
+                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />}
+                  </motion.button>
                 </div>
               </form>
+              
             </motion.div>
-          </motion.div>
+          </>
         )}
       </AnimatePresence>
     </main>

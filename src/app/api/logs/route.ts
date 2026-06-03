@@ -32,7 +32,7 @@ export async function POST(req: Request) {
 
     const userId = (session.user as any).id;
     const body = await req.json();
-    const { date, description } = body;
+    const { date, description, tags, reminder } = body;
 
     if (!date || !description) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -57,6 +57,8 @@ export async function POST(req: Request) {
       dayOfWeek,
       description,
       weekNumber,
+      tags: tags || [],
+      reminder: reminder ? new Date(reminder) : undefined,
     });
 
     return NextResponse.json({ log: newLog }, { status: 201 });

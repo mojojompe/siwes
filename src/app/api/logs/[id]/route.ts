@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import connectToDatabase from "@/lib/db";
-import { Todo } from "@/models/Todo";
+import { Log } from "@/models/Log";
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -11,23 +11,23 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const userId = (session.user as any).id;
-    const { completed, title, date, reminderTime } = await req.json();
+    const body = await req.json();
+    const { description, tags, reminder } = body;
 
     const updateData: any = {};
-    if (completed !== undefined) updateData.completed = completed;
-    if (title !== undefined) updateData.title = title;
-    if (date !== undefined) updateData.date = date;
-    if (reminderTime !== undefined) updateData.reminderTime = reminderTime;
+    if (description !== undefined) updateData.description = description;
+    if (tags !== undefined) updateData.tags = tags;
+    if (reminder !== undefined) updateData.reminder = reminder ? new Date(reminder) : null;
 
     await connectToDatabase();
-    const updatedTodo = await Todo.findOneAndUpdate(
+    const updatedLog = await Log.findOneAndUpdate(
       { _id: id, userId },
       { $set: updateData },
       { new: true }
     );
 
-    if (!updatedTodo) return NextResponse.json({ error: "Not found" }, { status: 404 });
-    return NextResponse.json({ todo: updatedTodo });
+    if (!updatedLog) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json({ log: updatedLog });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -42,9 +42,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     const userId = (session.user as any).id;
 
     await connectToDatabase();
-    const deletedTodo = await Todo.findOneAndDelete({ _id: id, userId });
+    const deletedLog = await Log.findOneAndDelete({ _id: id, userId });
 
-    if (!deletedTodo) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!deletedLog) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json({ success: true });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

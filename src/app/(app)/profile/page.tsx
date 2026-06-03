@@ -2,144 +2,194 @@
 
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { User, LogOut, Settings, Bell, Shield, Hash, BookOpen, ChevronRight, X } from "lucide-react";
+import { Settings, Bell, Shield, Hash, BookOpen, ChevronRight, LogOut, X, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+
+const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
 
 export default function ProfilePage() {
   const { data: session } = useSession();
   const [showLogout, setShowLogout] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
-  const handleLogout = () => {
-    signOut({ callbackUrl: "/login" });
-  };
+  const handleLogout = () => signOut({ callbackUrl: "/login" });
 
   if (!session?.user) return null;
-
   const user = session.user as any;
-  const initials = `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase();
+
+  const infoItems = [
+    { icon: Hash, label: "Matric Number", value: user.matricNumber, color: "text-[#3B5BDB]", bg: "bg-[#3B5BDB]/8" },
+    { icon: BookOpen, label: "Department", value: user.department, color: "text-violet-500", bg: "bg-violet-500/8" },
+  ];
+
+  const settingsItems = [
+    { icon: Settings, label: "Account Settings", color: "text-slate-500", bg: "bg-slate-100" },
+    { icon: Bell, label: "Notifications", color: "text-amber-500", bg: "bg-amber-50" },
+    { icon: Shield, label: "Privacy & Security", color: "text-emerald-500", bg: "bg-emerald-50" },
+  ];
 
   return (
-    <main className="p-4 sm:p-8 flex-1">
-      <header className="mb-8">
-        <h1 className="text-2xl font-extrabold text-slate-800">Profile</h1>
-      </header>
+    <main className="p-5 pb-32 flex-1 mesh-bg min-h-screen relative overflow-hidden">
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="pt-3 mb-6">
+        <h1 className="heading-display text-[26px] text-[#1A1A2E]">Profile</h1>
+      </motion.div>
 
-      <div className="space-y-6">
-        <div className="bg-white/80 backdrop-blur-2xl rounded-3xl p-6 border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col items-center text-center">
-          <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-full flex items-center justify-center text-3xl font-bold shadow-lg shadow-blue-500/30 mb-4">
-            {initials || <User className="w-10 h-10" />}
+      <div className="space-y-4">
+        {/* Avatar Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.05, ...spring }}
+          className="glass-card rounded-[1.75rem] p-6 flex flex-col items-center text-center relative z-10"
+        >
+          {/* Halo ring + clay avatar */}
+          <div className="relative mb-4">
+            <div className="absolute inset-0 rounded-full border-2 border-dashed border-[#3B5BDB]/25 halo-ring" style={{ margin: "-8px" }} />
+            <div className="w-24 h-24 rounded-full overflow-hidden shadow-[0_8px_32px_rgba(59,91,219,0.2)] border-2 border-white bg-white">
+              <img src="/clay-profile.png" alt="Profile" className="w-full h-full object-cover mix-blend-multiply" />
+            </div>
           </div>
-          <h2 className="text-xl font-extrabold text-slate-800">{user.firstName} {user.lastName}</h2>
-          <p className="text-slate-500 font-medium text-sm mt-1">{user.department}</p>
-        </div>
 
-        {/* Info List */}
-        <div className="bg-white/80 backdrop-blur-2xl rounded-3xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
-          <div className="p-4 border-b border-white/50 flex items-center justify-between">
-            <div className="flex items-center gap-3 text-slate-700 font-medium">
-              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                <Hash className="w-4 h-4" />
-              </div>
-              <span>Matric Number</span>
-            </div>
-            <span className="text-sm font-bold text-slate-800">{user.matricNumber}</span>
-          </div>
-          <div className="p-4 border-b border-white/50 flex items-center justify-between">
-            <div className="flex items-center gap-3 text-slate-700 font-medium">
-              <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                <BookOpen className="w-4 h-4" />
-              </div>
-              <span>Department</span>
-            </div>
-            <span className="text-sm font-bold text-slate-800">{user.department}</span>
-          </div>
-        </div>
+          <h2 className="heading-display text-[22px] text-[#1A1A2E] mt-1">
+            {user.firstName} {user.lastName}
+          </h2>
+          <p className="text-[13px] text-black/40 font-medium mt-0.5">{user.department}</p>
+          <span className="mt-3 px-3 py-1.5 bg-[#3B5BDB]/8 text-[#3B5BDB] rounded-full text-[11px] font-bold mono border border-[#3B5BDB]/12">
+            {user.matricNumber}
+          </span>
+        </motion.div>
 
-        {/* Settings Links */}
-        <div className="bg-white/80 backdrop-blur-2xl rounded-3xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
-          <button onClick={() => alert("Feature coming soon!")} className="w-full p-4 border-b border-white/50 flex items-center justify-between hover:bg-white/40 transition-colors">
-            <div className="flex items-center gap-3 text-slate-700 font-medium">
-              <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
-                <Settings className="w-4 h-4" />
+        {/* Info Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, ...spring }}
+          className="glass-card rounded-[1.5rem] overflow-hidden relative z-10"
+        >
+          {infoItems.map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.label} className={`flex items-center justify-between p-4 ${i < infoItems.length - 1 ? "border-b border-black/5" : ""}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`w-9 h-9 rounded-xl ${item.bg} ${item.color} flex items-center justify-center`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <span className="text-[14px] font-600 text-[#1A1A2E]">{item.label}</span>
+                </div>
+                <span className="mono text-[12px] font-bold text-black/50 max-w-[120px] truncate text-right">{item.value}</span>
               </div>
-              <span>Account Settings</span>
-            </div>
-            <ChevronRight className="w-5 h-5 text-slate-400" />
-          </button>
-          <button onClick={() => alert("Feature coming soon!")} className="w-full p-4 border-b border-white/50 flex items-center justify-between hover:bg-white/40 transition-colors">
-            <div className="flex items-center gap-3 text-slate-700 font-medium">
-              <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
-                <Bell className="w-4 h-4" />
-              </div>
-              <span>Notifications</span>
-            </div>
-            <ChevronRight className="w-5 h-5 text-slate-400" />
-          </button>
-          <button onClick={() => alert("Feature coming soon!")} className="w-full p-4 flex items-center justify-between hover:bg-white/40 transition-colors">
-            <div className="flex items-center gap-3 text-slate-700 font-medium">
-              <div className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
-                <Shield className="w-4 h-4" />
-              </div>
-              <span>Privacy & Security</span>
-            </div>
-            <ChevronRight className="w-5 h-5 text-slate-400" />
-          </button>
-        </div>
+            );
+          })}
+        </motion.div>
+
+        {/* Settings Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, ...spring }}
+          className="glass-card rounded-[1.5rem] overflow-hidden relative z-10"
+        >
+          {settingsItems.map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <motion.button
+                key={item.label} whileTap={{ scale: 0.99 }}
+                onClick={() => setShowComingSoon(true)}
+                className={`w-full flex items-center justify-between p-4 hover:bg-black/3 transition-colors ${
+                  i < settingsItems.length - 1 ? "border-b border-black/5" : ""
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-9 h-9 rounded-xl ${item.bg} ${item.color} flex items-center justify-center`}>
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <span className="text-[14px] font-600 text-[#1A1A2E]">{item.label}</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-black/25" />
+              </motion.button>
+            );
+          })}
+        </motion.div>
 
         {/* Logout */}
-        <button
+        <motion.button
+          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, ...spring }}
+          whileTap={{ scale: 0.97 }}
           onClick={() => setShowLogout(true)}
-          className="w-full py-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-3xl font-bold flex items-center justify-center gap-2 transition-colors border border-red-100"
+          className="w-full py-4 glass-card rounded-[1.5rem] text-red-500 font-bold flex items-center justify-center gap-2 hover:bg-red-50/50 transition-colors border-red-100/50 relative z-10"
         >
-          <LogOut className="w-5 h-5" /> Logout
-        </button>
+          <LogOut className="w-5 h-5" />
+          Log Out
+        </motion.button>
 
-        {/* Sponsor Text */}
-        <div className="text-center pt-8 pb-4">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-            Sponsored by <span className="text-blue-600">Waltik Labs</span>
+        {/* Sponsor */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
+          className="text-center pt-4 pb-2 relative z-10">
+          <p className="text-[11px] font-bold text-black/25 uppercase tracking-[0.18em]">
+            Sponsored by <span className="text-[#3B5BDB]/60">Waltik Labs</span>
           </p>
-        </div>
+        </motion.div>
       </div>
 
+      {/* Coming Soon Drawer */}
       <AnimatePresence>
-        {showLogout && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
-          >
+        {showComingSoon && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowComingSoon(false)} className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px]" />
             <motion.div
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              className="bg-white/80 backdrop-blur-2xl w-full max-w-sm rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] border border-white overflow-hidden p-6 text-center"
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={spring}
+              className="fixed bottom-0 left-0 right-0 z-50 glass-card rounded-t-[2rem] p-6 pb-28 shadow-[0_-20px_60px_rgba(0,0,0,0.1)]"
             >
-              <div className="w-16 h-16 bg-red-100 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <LogOut className="w-8 h-8" />
-              </div>
-              <h2 className="text-xl font-bold text-slate-800 mb-2">Ready to leave?</h2>
-              <p className="text-slate-500 mb-6 text-sm">
-                Are you sure you want to log out of your account?
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowLogout(false)}
-                  className="flex-1 py-3 text-slate-600 font-bold hover:bg-slate-100 rounded-xl transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl shadow-md shadow-red-500/20 transition-colors"
-                >
-                  Log Out
-                </button>
+              <div className="flex flex-col items-center text-center pt-2">
+                <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-5 shadow-inner">
+                  <Info className="w-7 h-7 text-[#3B5BDB]" />
+                </div>
+                <h3 className="heading-display text-[22px] text-[#1A1A2E] mb-2">Coming Soon</h3>
+                <p className="text-[14px] text-black/50 font-medium mb-8 leading-relaxed max-w-[260px]">
+                  We are working hard to bring this feature to you in the next update.
+                </p>
+                <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowComingSoon(false)}
+                  className="w-full py-4 btn-primary rounded-xl font-bold text-[15px]">
+                  Got it, thanks!
+                </motion.button>
               </div>
             </motion.div>
-          </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Redesigned Logout Drawer */}
+      <AnimatePresence>
+        {showLogout && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowLogout(false)} className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[3px]" />
+            <motion.div
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={spring}
+              className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-[2rem] p-6 pb-28 shadow-[0_-24px_80px_rgba(0,0,0,0.15)]"
+            >
+              <div className="flex flex-col items-center text-center pt-2">
+                <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-5 relative">
+                  <div className="absolute inset-0 rounded-full border border-red-200 animate-ping opacity-20" />
+                  <LogOut className="w-7 h-7 text-red-500 ml-1" />
+                </div>
+                <h2 className="heading-display text-[22px] text-[#1A1A2E] mb-2">Sign Out?</h2>
+                <p className="text-[14px] text-black/50 font-medium mb-8 leading-relaxed px-4">
+                  Are you sure you want to sign out of your SIWES tracker account?
+                </p>
+                <div className="w-full space-y-3">
+                  <motion.button whileTap={{ scale: 0.97 }} onClick={handleLogout}
+                    className="w-full py-4 bg-red-50 hover:bg-red-100 text-red-600 text-[15px] font-bold rounded-xl border border-red-100 transition-colors">
+                    Yes, Sign me out
+                  </motion.button>
+                  <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowLogout(false)}
+                    className="w-full py-4 bg-black/5 hover:bg-black/10 text-[#1A1A2E] text-[15px] font-bold rounded-xl transition-colors">
+                    Cancel
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </main>

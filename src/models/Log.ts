@@ -22,6 +22,13 @@ const LogSchema = new mongoose.Schema({
     type: Number, // Calculate ISO week number or relative week
     required: true,
   },
+  tags: [{
+    type: String,
+  }],
+  reminder: {
+    type: Date,
+    required: false,
+  },
 }, { timestamps: true });
 
 // Ensure we don't have multiple logs for the same user on the same date

@@ -2,38 +2,26 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { History, ChevronDown, Clock, Loader2 } from "lucide-react";
+import { ChevronDown, Clock } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
 
-interface Log {
-  _id: string;
-  date: string;
-  dayOfWeek: string;
-  description: string;
-  weekNumber: number;
-}
+interface Log { _id: string; date: string; dayOfWeek: string; description: string; weekNumber: number; }
+
+const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
 
 export default function PreviousWeeksPage() {
   const [logs, setLogs] = useState<Log[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedWeek, setExpandedWeek] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetchLogs();
-  }, []);
+  useEffect(() => { fetchLogs(); }, []);
 
   const fetchLogs = async () => {
     try {
       const res = await fetch("/api/logs");
-      if (res.ok) {
-        const data = await res.json();
-        setLogs(data.logs);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+      if (res.ok) { const data = await res.json(); setLogs(data.logs); }
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
   };
 
   const currentWeekNum = (() => {
@@ -44,99 +32,114 @@ export default function PreviousWeeksPage() {
   })();
 
   const previousLogs = logs.filter(l => l.weekNumber < currentWeekNum);
-
   const groupedByWeek = previousLogs.reduce((acc, log) => {
-    if (!acc[log.weekNumber]) {
-      acc[log.weekNumber] = [];
-    }
+    if (!acc[log.weekNumber]) acc[log.weekNumber] = [];
     acc[log.weekNumber].push(log);
     return acc;
   }, {} as Record<number, Log[]>);
+  const sortedWeeks = Object.keys(groupedByWeek).map(Number).sort((a, b) => b - a);
 
-  const sortedWeeks = Object.keys(groupedByWeek)
-    .map(Number)
-    .sort((a, b) => b - a);
-
-  if (loading) {
-    return <Skeleton />;
-  }
+  if (loading) return <Skeleton />;
 
   return (
-    <main className="p-4 sm:p-8 flex-1">
-      <header className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 text-blue-600 flex items-center justify-center">
-            <History className="w-7 h-7" />
-          </div>
-          <h1 className="text-2xl font-extrabold text-slate-800">Previous Weeks</h1>
-        </div>
-        <p className="text-slate-500 font-medium text-sm">
-          Review your past SIWES activity
-        </p>
-      </header>
+    <main className="p-5 pb-32 flex-1 mesh-bg min-h-screen">
+      {/* Header */}
+      <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="mb-6 pt-3">
+        <h1 className="heading-display text-[26px] text-[#1A1A2E]">Previous Weeks</h1>
+        <p className="text-[13px] font-medium text-black/40 mt-0.5">Review your SIWES history</p>
+      </motion.header>
 
-      <div className="space-y-4">
-        {sortedWeeks.length === 0 ? (
-          <div className="p-8 text-center bg-white/80 backdrop-blur-sm rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white">
-            <History className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-medium">No previous weeks found.</p>
-          </div>
-        ) : (
-          sortedWeeks.map((week) => {
-            const weekLogs = groupedByWeek[week].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-            const isExpanded = expandedWeek === week;
+      {sortedWeeks.length === 0 ? (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card rounded-[1.5rem] p-8 text-center">
+          <p className="text-[14px] font-medium text-black/40">No previous weeks found yet.</p>
+          <p className="text-[12px] text-black/30 mt-1">Keep logging daily to see your history here.</p>
+        </motion.div>
+      ) : (
+        <div className="relative">
+          {/* Timeline line */}
+          <div className="absolute left-6 top-6 bottom-6 w-[2px] bg-gradient-to-b from-[#3B5BDB]/30 via-[#3B5BDB]/15 to-transparent rounded-full" />
 
-            return (
-              <div key={week} className="bg-white/80 backdrop-blur-2xl rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white overflow-hidden transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]">
-                <button
-                  onClick={() => setExpandedWeek(isExpanded ? null : week)}
-                  className="w-full p-5 flex items-center justify-between text-left hover:bg-slate-50 transition-colors focus:outline-none"
+          <div className="space-y-3 pl-14">
+            {sortedWeeks.map((week, wi) => {
+              const weekLogs = groupedByWeek[week].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+              const isExpanded = expandedWeek === week;
+
+              return (
+                <motion.div
+                  key={week}
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: wi * 0.06, ...spring }}
+                  className="relative"
                 >
-                  <div>
-                    <h2 className="text-lg font-bold text-slate-800">Week {week}</h2>
-                    <p className="text-sm text-slate-500 font-medium mt-0.5">
-                      {weekLogs.length} {weekLogs.length === 1 ? "entry" : "entries"}
-                    </p>
-                  </div>
-                  <div className={`w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center transition-transform duration-300 ${isExpanded ? "rotate-180" : ""}`}>
-                    <ChevronDown className="w-5 h-5 text-slate-500" />
-                  </div>
-                </button>
+                  {/* Timeline dot */}
+                  <div className="absolute -left-[3.25rem] top-5 w-4 h-4 rounded-full bg-white border-2 border-[#3B5BDB]/40 shadow-[0_0_0_3px_rgba(59,91,219,0.08)]" />
 
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden"
+                  <div className="glass-card rounded-[1.5rem] overflow-hidden">
+                    <motion.button
+                      whileTap={{ scale: 0.99 }}
+                      onClick={() => setExpandedWeek(isExpanded ? null : week)}
+                      className="w-full p-5 flex items-center justify-between text-left"
                     >
-                      <div className="p-5 pt-0 border-t border-white/50 bg-white/40 space-y-3">
-                        {weekLogs.map((log) => (
-                          <div key={log._id} className="bg-white/90 p-4 rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50/50 border border-blue-100/50 text-blue-600 rounded-full text-xs font-bold">
-                                <Clock className="w-3.5 h-3.5 text-blue-500" />
-                                {log.dayOfWeek}
-                              </span>
-                              <span className="text-xs font-semibold text-slate-400">
-                                {new Date(log.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                              </span>
-                            </div>
-                            <p className="text-slate-700 text-sm font-medium leading-relaxed">
-                              {log.description}
-                            </p>
-                          </div>
-                        ))}
+                      <div className="flex items-baseline gap-3">
+                        <span className="mono text-[22px] font-700 text-[#3B5BDB]">W{week}</span>
+                        <div>
+                          <p className="text-[14px] font-700 text-[#1A1A2E]">Week {week}</p>
+                          <p className="text-[12px] text-black/40 font-medium">
+                            {weekLogs.length} {weekLogs.length === 1 ? "entry" : "entries"}
+                          </p>
+                        </div>
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })
-        )}
-      </div>
+                      <motion.div
+                        animate={{ rotate: isExpanded ? 180 : 0 }}
+                        transition={spring}
+                        className="w-8 h-8 rounded-xl bg-black/5 flex items-center justify-center"
+                      >
+                        <ChevronDown className="w-4 h-4 text-black/40" />
+                      </motion.div>
+                    </motion.button>
+
+                    <AnimatePresence initial={false}>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-5 pb-5 pt-1 border-t border-black/5 space-y-2.5">
+                            {weekLogs.map((log, i) => (
+                              <motion.div
+                                key={log._id}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.04, ...spring }}
+                                className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-white/70"
+                              >
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#3B5BDB]/8 text-[#3B5BDB] rounded-full text-[11px] font-bold border border-[#3B5BDB]/10">
+                                    <Clock className="w-3 h-3" />
+                                    {log.dayOfWeek}
+                                  </span>
+                                  <span className="mono text-[11px] text-black/35 font-medium">
+                                    {new Date(log.date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
+                                  </span>
+                                </div>
+                                <p className="text-[13px] text-[#1A1A2E] font-medium leading-relaxed">{log.description}</p>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </main>
   );
 }
