@@ -11,8 +11,19 @@ const UserSchema = new mongoose.Schema({
   },
   department: {
     type: String,
-    required: [true, "Please provide your department"],
+    required: false,
   },
+  hasReadDisclaimer: {
+    type: Boolean,
+    default: false,
+  },
+  pushSubscriptions: [{
+    endpoint: String,
+    keys: {
+      p256dh: String,
+      auth: String
+    }
+  }],
   matricNumber: {
     type: String,
     required: [true, "Please provide your matric number"],

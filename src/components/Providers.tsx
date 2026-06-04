@@ -3,6 +3,7 @@
 import { SessionProvider } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
 import { RemindersManager } from "./RemindersManager";
+import { GlobalGuard } from "./GlobalGuard";
 import { motion, AnimatePresence } from "framer-motion";
 import { InstallPrompt } from "./InstallPrompt";
 import gsap from "gsap";
@@ -37,6 +38,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
       <RemindersManager />
+      <GlobalGuard />
       <AnimatePresence mode="wait">
         {showSplash ? (
           <motion.div

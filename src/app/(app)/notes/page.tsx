@@ -78,16 +78,11 @@ export default function NotesPage() {
   if (loading) return <Skeleton />;
 
   return (
-    <main className="p-5 pb-32 flex-1 mesh-bg min-h-screen">
+    <main className="p-5 pb-32 flex-1 bg-[#fafafa] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] min-h-screen">
       {/* Header */}
-      <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="mb-6 pt-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="heading-display text-[26px] text-[#1A1A2E]">Notes</h1>
-            <p className="text-[13px] font-medium text-black/40 mt-0.5">{notes.length} {notes.length === 1 ? "note" : "notes"}</p>
-          </div>
-          <img src="/clay-notes.png" alt="" className="w-16 h-16 object-contain clay-float drop-shadow-lg mix-blend-multiply" />
-        </div>
+      <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="sticky top-0 z-[60] pt-5 pb-4 -mx-5 px-5 mb-6">
+        <h1 className="heading-display text-[26px] text-[#1A1A2E]">Notes</h1>
+        <p className="text-[13px] font-medium text-black/40 mt-0.5">Jot down quick thoughts</p>
       </motion.header>
 
       {/* Notes Grid - Masonry via CSS columns */}

@@ -1,16 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
-import { Settings, Bell, Shield, Hash, BookOpen, ChevronRight, LogOut, X, Info } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Settings, Bell, Shield, Hash, BookOpen, ChevronRight, LogOut, X, Info, FileText } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
 
 export default function ProfilePage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [showLogout, setShowLogout] = useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    fetch("/api/notifications").then(res => {
+      if (res.ok) {
+        res.json().then(data => {
+          const dbUnread = data.notifications.filter((n: any) => !n.isRead).length;
+          const readStaticIds = JSON.parse(localStorage.getItem("readStaticUpdates") || "[]");
+          const staticUnread = Math.max(0, 4 - readStaticIds.length);
+          setUnreadCount(dbUnread + staticUnread);
+        });
+      }
+    });
+  }, []);
 
   const handleLogout = () => signOut({ callbackUrl: "/login" });
 
@@ -23,17 +39,18 @@ export default function ProfilePage() {
   ];
 
   const settingsItems = [
-    { icon: Settings, label: "Account Settings", color: "text-slate-500", bg: "bg-slate-100" },
-    { icon: Bell, label: "Notifications", color: "text-amber-500", bg: "bg-amber-50" },
-    { icon: Shield, label: "Privacy & Security", color: "text-emerald-500", bg: "bg-emerald-50" },
+    { icon: Settings, label: "Account Settings", color: "text-slate-500", bg: "bg-slate-100", route: "/profile/settings" },
+    { icon: Bell, label: "Notifications", color: "text-amber-500", bg: "bg-amber-50", route: "/notifications" },
+    { icon: Shield, label: "Privacy & Security", color: "text-emerald-500", bg: "bg-emerald-50", route: "/profile/privacy" },
+    { icon: FileText, label: "Logbook Disclaimer", color: "text-indigo-500", bg: "bg-indigo-50", route: "/disclaimer" },
   ];
 
   return (
-    <main className="p-5 pb-32 flex-1 mesh-bg min-h-screen relative overflow-hidden">
+    <main className="p-5 pb-32 flex-1 bg-[#fafafa] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] min-h-screen relative overflow-hidden">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="pt-3 mb-6">
+      <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="sticky top-0 z-[60] pt-5 pb-4 -mx-5 px-5 mb-8">
         <h1 className="heading-display text-[26px] text-[#1A1A2E]">Profile</h1>
-      </motion.div>
+      </motion.header>
 
       <div className="space-y-4">
         {/* Avatar Card */}
@@ -92,7 +109,10 @@ export default function ProfilePage() {
             return (
               <motion.button
                 key={item.label} whileTap={{ scale: 0.99 }}
-                onClick={() => setShowComingSoon(true)}
+                onClick={() => {
+                  if (item.route) router.push(item.route);
+                  else setShowComingSoon(true);
+                }}
                 className={`w-full flex items-center justify-between p-4 hover:bg-black/3 transition-colors ${
                   i < settingsItems.length - 1 ? "border-b border-black/5" : ""
                 }`}
@@ -103,7 +123,14 @@ export default function ProfilePage() {
                   </div>
                   <span className="text-[14px] font-600 text-[#1A1A2E]">{item.label}</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-black/25" />
+                <div className="flex items-center gap-2">
+                  {item.label === "Notifications" && unreadCount > 0 && (
+                    <span className="flex h-5 items-center justify-center rounded-full bg-red-500 px-2 text-[10px] font-bold text-white shadow-sm">
+                      {unreadCount} New
+                    </span>
+                  )}
+                  <ChevronRight className="w-4 h-4 text-black/25" />
+                </div>
               </motion.button>
             );
           })}

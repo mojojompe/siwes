@@ -33,20 +33,34 @@ export const authOptions: NextAuthOptions = {
           firstName: user.firstName, 
           lastName: user.lastName, 
           department: user.department,
-          matricNumber: user.matricNumber 
+          matricNumber: user.matricNumber,
+          hasReadDisclaimer: user.hasReadDisclaimer
         };
       }
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
         token.firstName = (user as any).firstName;
         token.lastName = (user as any).lastName;
         token.department = (user as any).department;
         token.matricNumber = (user as any).matricNumber;
+        token.hasReadDisclaimer = (user as any).hasReadDisclaimer;
       }
+      
+      // Handle session updates (e.g. from disclaimer page)
+      if (trigger === "update" && session?.user) {
+        token.firstName = session.user.firstName ?? token.firstName;
+        token.lastName = session.user.lastName ?? token.lastName;
+        token.department = session.user.department ?? token.department;
+        token.matricNumber = session.user.matricNumber ?? token.matricNumber;
+        if (session.user.hasReadDisclaimer !== undefined) {
+          token.hasReadDisclaimer = session.user.hasReadDisclaimer;
+        }
+      }
+      
       return token;
     },
     async session({ session, token }) {
@@ -56,6 +70,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).lastName = token.lastName;
         (session.user as any).department = token.department;
         (session.user as any).matricNumber = token.matricNumber;
+        (session.user as any).hasReadDisclaimer = token.hasReadDisclaimer;
       }
       return session;
     }

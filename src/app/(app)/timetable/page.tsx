@@ -83,9 +83,11 @@ export default function TimetablePage() {
 
   return (
     <main className="p-5 pb-32 flex-1 mesh-bg min-h-screen flex flex-col">
-      <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="mb-5 pt-3">
-        <h1 className="heading-display text-[26px] text-[#1A1A2E]">Timetable</h1>
-        <p className="text-[13px] font-medium text-black/40 mt-0.5">Tap any day to manage actions</p>
+      <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="flex items-center justify-between sticky top-0 z-[60] pt-5 pb-4 -mx-5 px-5 mb-6">
+        <div>
+          <h1 className="heading-display text-[26px] text-[#1A1A2E]">Schedule</h1>
+          <p className="text-[13px] font-medium text-black/40 mt-0.5">Your daily timetable</p>
+        </div>
       </motion.header>
 
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, ...spring }}
