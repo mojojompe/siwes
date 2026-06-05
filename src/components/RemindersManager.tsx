@@ -46,7 +46,7 @@ export function RemindersManager() {
           subscribeToPush();
         }
       });
-    } else if (Notification.permission === "granted") {
+    } else if ("Notification" in window && Notification.permission === "granted") {
       subscribeToPush();
     }
 
