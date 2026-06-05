@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Calendar, Plus, X, Loader2, Tag, Bell, Trash2, Edit3, Search, Lightbulb, CheckSquare, FileText, Sparkles, Mic } from "lucide-react";
@@ -36,6 +36,10 @@ export default function HomePage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
+
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const [showAiTooltip, setShowAiTooltip] = useState(false);
 
   useEffect(() => { fetchAllData(); }, []);
 
@@ -96,6 +100,8 @@ export default function HomePage() {
 
   const openNew = () => { 
     setEditId(null); setDate(new Date().toISOString().split("T")[0]); setDescription(""); setTagsStr(""); setReminder(""); setError(""); setShowAdd(true); 
+    setShowAiTooltip(true);
+    setTimeout(() => setShowAiTooltip(false), 3000);
   };
   
   const openEdit = (log: Log) => {
@@ -105,6 +111,8 @@ export default function HomePage() {
     setTagsStr(log.tags ? log.tags.join(", ") : "");
     setReminder(log.reminder ? new Date(log.reminder).toISOString().slice(0, 16) : "");
     setError(""); setShowAdd(true);
+    setShowAiTooltip(true);
+    setTimeout(() => setShowAiTooltip(false), 3000);
   };
 
   const closeSheet = () => setShowAdd(false);
@@ -271,8 +279,8 @@ export default function HomePage() {
       <AnimatePresence>
         {showAdd && (
           <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeSheet} className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px]" />
-            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={spring} className="fixed bottom-0 left-0 right-0 z-50 glass-card rounded-t-[2rem] p-6 pb-28 flex flex-col max-h-[90vh]">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeSheet} className="fixed inset-0 z-[90] bg-black/30 backdrop-blur-[2px]" />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={spring} className="fixed bottom-0 left-0 right-0 z-[100] glass-card rounded-t-[2rem] p-6 pb-28 flex flex-col max-h-[90vh]">
               <div className="flex items-center justify-between mb-5 flex-shrink-0">
                 <h3 className="heading-display text-[18px]">{editId ? "Edit Log Entry" : "Add Log Entry"}</h3>
                 <motion.button whileTap={{ scale: 0.85 }} onClick={closeSheet} className="w-8 h-8 rounded-full bg-black/6 flex items-center justify-center text-black/40"><X className="w-4 h-4" /></motion.button>
@@ -288,28 +296,57 @@ export default function HomePage() {
                   <div>
                     <div className="flex items-center justify-between mb-1.5 ml-1 pr-1">
                       <label className="block text-[11px] font-bold text-black/40 uppercase tracking-wider">Daily Log</label>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-4">
                         {/* Voice Input Button */}
                         <button type="button" onClick={() => {
-                          const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-                          if (SpeechRecognition) {
-                            const recognition = new SpeechRecognition();
-                            recognition.onresult = (e: any) => setDescription(prev => prev + " " + e.results[0][0].transcript);
-                            recognition.start();
+                          if (isListening) {
+                            recognitionRef.current?.stop();
+                            setIsListening(false);
                           } else {
-                            alert("Speech recognition is not supported in this browser.");
+                            const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+                            if (SpeechRecognition) {
+                              const recognition = new SpeechRecognition();
+                              recognitionRef.current = recognition;
+                              recognition.onresult = (e: any) => setDescription(prev => prev + " " + e.results[0][0].transcript);
+                              recognition.onend = () => setIsListening(false);
+                              recognition.start();
+                              setIsListening(true);
+                            } else {
+                              alert("Speech recognition is not supported in this browser.");
+                            }
                           }
-                        }} className="text-black/30 hover:text-[#3B5BDB] transition-colors"><Mic className="w-4 h-4" /></button>
+                        }} className={`transition-colors flex items-center gap-1.5 px-2 py-1 rounded-lg ${isListening ? "bg-red-50 text-red-500 animate-pulse" : "bg-black/5 text-black/40 hover:text-[#3B5BDB]"}`}>
+                          {isListening ? (
+                            <><div className="w-2.5 h-2.5 bg-red-500 rounded-sm" /><span className="text-[10px] font-bold tracking-wider">REC</span></>
+                          ) : (
+                            <Mic className="w-4 h-4" />
+                          )}
+                        </button>
+                        
                         {/* AI Rephrase Button */}
-                        <button type="button" onClick={async () => {
-                          if (!description.trim()) return;
-                          setSaving(true);
-                          try {
-                            const res = await fetch("/api/ai/rephrase", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: description }) });
-                            const data = await res.json();
-                            if (data.rephrased) setDescription(data.rephrased);
-                          } catch (err) {} finally { setSaving(false); }
-                        }} className="text-amber-500/60 hover:text-amber-500 transition-colors flex items-center gap-1"><Sparkles className="w-4 h-4" /></button>
+                        <div className="relative">
+                          <button type="button" onClick={async () => {
+                            if (!description.trim()) return;
+                            setSaving(true);
+                            try {
+                              const res = await fetch("/api/ai/rephrase", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: description }) });
+                              const data = await res.json();
+                              if (data.rephrased) setDescription(data.rephrased);
+                            } catch (err) {} finally { setSaving(false); }
+                          }} className="text-amber-500/60 hover:text-amber-500 transition-colors flex items-center gap-1">
+                            <Sparkles className="w-5 h-5" />
+                          </button>
+                          
+                          <AnimatePresence>
+                            {showAiTooltip && (
+                              <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                                className="absolute top-full right-0 mt-3 bg-indigo-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-50">
+                                You can rephrase with AI now!
+                                <div className="absolute -top-1 right-2 w-2 h-2 bg-indigo-600 rotate-45" />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
                       </div>
                     </div>
                     <textarea required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What did you learn or do today?" className="w-full px-4 py-3.5 input-premium text-[14px] font-medium min-h-[120px] resize-none leading-relaxed" />
