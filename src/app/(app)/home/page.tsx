@@ -8,6 +8,7 @@ import { FileText, Plus, Search, Calendar, ChevronDown, CheckCircle2, Circle, Li
 import { Skeleton } from "@/components/Skeleton";
 import { useRouter } from "next/navigation";
 import { ProModal } from "@/components/ProModal";
+import { EmailModal } from "@/components/EmailModal";
 import { RiveEmptyState } from "@/components/RiveEmptyState";
 
 interface Log { _id: string; date: string; description: string; dayOfWeek: string; weekNumber: number; tags?: string[]; reminder?: string; mediaUrls?: string[]; }
@@ -49,9 +50,15 @@ export default function HomePage() {
   const [showTipsPointer, setShowTipsPointer] = useState(false);
   const [showNotifPointer, setShowNotifPointer] = useState(false);
   const [showProModal, setShowProModal] = useState(false);
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
   useEffect(() => { 
     fetchAllData(); 
+    
+    // Check if email is missing and prompt
+    if (session?.user && !(session.user as any).email) {
+      setShowEmailModal(true);
+    }
     
     // Sequential pointers
     setShowTipsPointer(true);
@@ -537,7 +544,12 @@ export default function HomePage() {
       <ProModal 
         isOpen={showProModal} 
         onClose={() => setShowProModal(false)} 
-        userEmail={user?.email || "user@siwestracker.com"} 
+        userEmail={(session?.user as any)?.email || ""} 
+      />
+
+      <EmailModal 
+        isOpen={showEmailModal} 
+        onSuccess={() => setShowEmailModal(false)} 
       />
     </main>
   );

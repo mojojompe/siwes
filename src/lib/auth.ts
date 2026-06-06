@@ -35,7 +35,8 @@ export const authOptions: NextAuthOptions = {
           department: user.department,
           matricNumber: user.matricNumber,
           hasReadDisclaimer: user.hasReadDisclaimer,
-          isPro: user.isPro
+          isPro: user.isPro,
+          email: user.email || ""
         };
       }
     })
@@ -50,6 +51,7 @@ export const authOptions: NextAuthOptions = {
         token.matricNumber = (user as any).matricNumber;
         token.hasReadDisclaimer = (user as any).hasReadDisclaimer;
         token.isPro = (user as any).isPro;
+        token.email = (user as any).email;
       }
       
       // Handle session updates (e.g. from disclaimer page)
@@ -58,12 +60,9 @@ export const authOptions: NextAuthOptions = {
         token.lastName = session.user.lastName ?? token.lastName;
         token.department = session.user.department ?? token.department;
         token.matricNumber = session.user.matricNumber ?? token.matricNumber;
-        if (session.user.hasReadDisclaimer !== undefined) {
-          token.hasReadDisclaimer = session.user.hasReadDisclaimer;
-        }
-        if (session.user.isPro !== undefined) {
-          token.isPro = session.user.isPro;
-        }
+        token.hasReadDisclaimer = session.user.hasReadDisclaimer ?? token.hasReadDisclaimer;
+        token.isPro = session.user.isPro ?? token.isPro;
+        token.email = session.user.email ?? token.email;
       }
       
       return token;
@@ -73,10 +72,11 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).id = token.id;
         (session.user as any).firstName = token.firstName;
         (session.user as any).lastName = token.lastName;
-        (session.user as any).department = token.department;
-        (session.user as any).matricNumber = token.matricNumber;
-        (session.user as any).hasReadDisclaimer = token.hasReadDisclaimer;
-        (session.user as any).isPro = token.isPro;
+        (session.user as any).department = token.department as string;
+        (session.user as any).matricNumber = token.matricNumber as string;
+        (session.user as any).hasReadDisclaimer = token.hasReadDisclaimer as boolean;
+        (session.user as any).isPro = token.isPro as boolean;
+        (session.user as any).email = token.email as string;
       }
       return session;
     }

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { User, Lock, BookOpen, Hash, ArrowRight } from "lucide-react";
+import { User, Lock, BookOpen, Hash, ArrowRight, Mail } from "lucide-react";
 
 const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
 
@@ -29,6 +29,7 @@ export default function SignupPage() {
   const [lastName, setLastName] = useState("");
   const [department, setDepartment] = useState("");
   const [matricNumber, setMatricNumber] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,12 +39,18 @@ export default function SignupPage() {
     setLoading(true);
     setError("");
 
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address.");
+      setLoading(false);
+      return;
+    }
+
     const fullMatric = `LCU/UG/${matricNumber}`;
     try {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, department, matricNumber: fullMatric, password }),
+        body: JSON.stringify({ firstName, lastName, department, matricNumber: fullMatric, email, password }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -133,6 +140,16 @@ export default function SignupPage() {
                   onChange={(e) => setMatricNumber(e.target.value.toUpperCase())}
                   className="flex-1 py-3.5 bg-transparent focus:outline-none text-[14px] mono font-medium"
                   placeholder="20/00000" />
+              </div>
+            </div>
+
+            {/* Email Address */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold text-black/40 uppercase tracking-[0.12em]">Email Address</label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-black/25" />
+                <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3.5 input-premium text-[14px] font-medium" placeholder="student@university.edu" />
               </div>
             </div>
 

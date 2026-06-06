@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ChevronLeft, Loader2, User, Hash, BookOpen } from "lucide-react";
+import { ChevronLeft, Loader2, User, Hash, BookOpen, Mail } from "lucide-react";
 
 const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
 
@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const [lastName, setLastName] = useState("");
   const [department, setDepartment] = useState("");
   const [matricNumber, setMatricNumber] = useState("");
+  const [email, setEmail] = useState("");
   
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -28,6 +29,7 @@ export default function SettingsPage() {
       setLastName(user.lastName || "");
       setDepartment(user.department || "");
       setMatricNumber(user.matricNumber || "");
+      setEmail(user.email || "");
     }
   }, [session]);
 
@@ -41,7 +43,7 @@ export default function SettingsPage() {
       const res = await fetch("/api/user", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, department }),
+        body: JSON.stringify({ firstName, lastName, department, email }),
       });
 
       const data = await res.json();
@@ -50,7 +52,7 @@ export default function SettingsPage() {
       // Tell NextAuth to update its session with the new data
       await update({
         ...session,
-        user: { ...session?.user, firstName, lastName, department }
+        user: { ...session?.user, firstName, lastName, department, email }
       });
 
       setMessage("Profile updated successfully!");
@@ -105,6 +107,16 @@ export default function SettingsPage() {
             <div className="relative">
               <BookOpen className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-black/30" />
               <input type="text" required value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full pl-10 pr-4 py-3.5 input-premium text-[14px] font-medium" />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-bold text-black/40 uppercase tracking-wider mb-1.5 ml-1 flex items-center gap-2">
+              Email Address
+            </label>
+            <div className="relative">
+              <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-black/30" />
+              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="w-full pl-10 pr-4 py-3.5 input-premium text-[14px] font-medium" />
             </div>
           </div>
 

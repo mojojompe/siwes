@@ -18,7 +18,7 @@ export function ProModal({ isOpen, onClose, userEmail }: ProModalProps) {
 
   const config = {
     reference: (new Date()).getTime().toString() + Math.random().toString(36).substring(7),
-    email: userEmail,
+    email: userEmail || "student@siwes.app",
     amount: 1500 * 100, // ₦1500 in kobo
     publicKey: process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "pk_test_placeholder",
   };

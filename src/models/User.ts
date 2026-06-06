@@ -13,6 +13,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  email: {
+    type: String,
+    required: false,
+  },
   hasReadDisclaimer: {
     type: Boolean,
     default: false,

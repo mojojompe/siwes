@@ -40,11 +40,23 @@ export async function PUT(req: Request) {
     }
 
     // Default profile update
-    const { firstName, lastName, department } = body;
+    const { firstName, lastName, department, email } = body;
     const updateData: any = {};
     if (firstName) updateData.firstName = firstName;
     if (lastName) updateData.lastName = lastName;
     if (department !== undefined) updateData.department = department;
+    if (email) {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+      }
+      
+      const existingUser = await User.findOne({ email });
+      if (existingUser && existingUser._id.toString() !== userId) {
+        return NextResponse.json({ error: "Email is already in use by another account" }, { status: 400 });
+      }
+      
+      updateData.email = email;
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
