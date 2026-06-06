@@ -152,3 +152,11 @@ html, body {
     radial-gradient(ellipse at 60% 80%, rgba(59, 130, 246, 0.2) 0%, transparent 60%),
     #0F0F1A;
 }
+
+/* Grid background */
+.bg-grid {
+  background-size: 30px 30px;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-color: var(--background);
+}

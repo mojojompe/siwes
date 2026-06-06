@@ -112,7 +112,7 @@ export default function ChatSessionPage({ params }: { params: { id: string } }) 
   if (loading) return <main className="flex-1 flex items-center justify-center min-h-screen mesh-bg"><Loader2 className="w-8 h-8 text-[#3B5BDB] animate-spin" /></main>;
 
   return (
-    <main className="flex flex-col min-h-screen mesh-bg relative">
+    <main className="flex flex-col min-h-screen bg-grid relative">
       <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="sticky top-0 z-[60] pt-5 pb-4 px-5 glass-card rounded-b-[1.5rem] flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-3">
           <button onClick={() => router.push("/chat")} className="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center text-black/40 hover:bg-black/10 transition-colors">
@@ -185,7 +185,7 @@ export default function ChatSessionPage({ params }: { params: { id: string } }) 
         <div ref={bottomRef} className="h-4" />
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-6 bg-gradient-to-t from-[#fafafa] via-[#fafafa]/80 to-transparent pointer-events-none z-50">
+      <div className="fixed bottom-0 left-0 right-0 p-4 pb-28 bg-gradient-to-t from-[#fafafa] via-[#fafafa]/80 to-transparent pointer-events-none z-50">
         <form onSubmit={(e) => { e.preventDefault(); handleSend(input); }} className="relative max-w-lg mx-auto pointer-events-auto flex gap-2">
           <button type="button" onClick={() => alert("Speech recognition initializing...")} className="w-14 h-14 rounded-full bg-white text-black/40 flex items-center justify-center hover:text-[#3B5BDB] shadow-md border border-black/5 transition-colors flex-shrink-0">
             <Mic className="w-5 h-5" />

@@ -71,7 +71,7 @@ export default function ChatHistoryPage() {
   if (loading) return <Skeleton />;
 
   return (
-    <main className="p-5 pb-32 flex-1 mesh-bg min-h-screen relative">
+    <main className="p-5 pb-32 flex-1 bg-grid min-h-screen relative">
       <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="sticky top-0 z-[60] pt-5 pb-4 -mx-5 px-5 mb-6">
         <div className="flex items-center justify-between">
           <div>
