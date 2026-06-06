@@ -9,6 +9,10 @@ export async function POST(req: Request) {
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    
+    if (!(session.user as any).isPro) {
+      return NextResponse.json({ error: "Premium feature. Upgrade to Pro required." }, { status: 403 });
+    }
 
     const { text } = await req.json();
     if (!text) {

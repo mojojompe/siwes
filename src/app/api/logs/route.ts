@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import connectToDatabase from "@/lib/db";
 import { Log } from "@/models/Log";
+import { rateLimit } from "@/lib/rateLimit";
+import { sanitize } from "@/lib/sanitize";
 
 export async function GET(req: Request) {
   try {
@@ -13,6 +15,12 @@ export async function GET(req: Request) {
 
     await connectToDatabase();
     const userId = (session.user as any).id;
+    
+    // Rate limit: 100 requests per minute
+    const rl = await rateLimit(`logs_get_${userId}`, 100, 60000);
+    if (!rl.success) {
+      return NextResponse.json({ error: "Too Many Requests" }, { status: 429 });
+    }
     
     // Sort by date ascending
     const logs = await Log.find({ userId }).sort({ date: 1 });
@@ -31,8 +39,15 @@ export async function POST(req: Request) {
     }
 
     const userId = (session.user as any).id;
-    const body = await req.json();
-    const { date, description, tags, reminder } = body;
+    
+    // Rate limit: 50 requests per minute for writes
+    const rl = await rateLimit(`logs_post_${userId}`, 50, 60000);
+    if (!rl.success) {
+      return NextResponse.json({ error: "Too Many Requests" }, { status: 429 });
+    }
+
+    const body = sanitize(await req.json());
+    const { date, description, tags, reminder, mediaUrls } = body;
 
     if (!date || !description) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -58,6 +73,7 @@ export async function POST(req: Request) {
       description,
       weekNumber,
       tags: tags || [],
+      mediaUrls: mediaUrls || [],
       reminder: reminder ? new Date(reminder) : undefined,
     });
 

@@ -17,6 +17,10 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  isPro: {
+    type: Boolean,
+    default: false,
+  },
   pushSubscriptions: [{
     endpoint: String,
     keys: {

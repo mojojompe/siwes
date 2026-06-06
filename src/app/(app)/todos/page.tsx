@@ -2,38 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Trash2, X, Calendar, Loader2, Clock, Bell } from "lucide-react";
+import confetti from "canvas-confetti";
+import { Plus, Trash2, X, Calendar, Loader2, Clock, Bell, Play, Pause, Square } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
+import { CircleProgress } from "@/components/CircleProgress";
+import { RiveEmptyState } from "@/components/RiveEmptyState";
 
 interface Todo { _id: string; title: string; completed: boolean; date?: string; reminderTime?: string; }
 
 const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
 
-function CircleProgress({ value }: { value: number }) {
-  const r = 28;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (value / 100) * circ;
-  return (
-    <div className="relative w-20 h-20">
-      <svg className="w-20 h-20 -rotate-90" viewBox="0 0 72 72">
-        <circle cx="36" cy="36" r={r} fill="none" stroke="rgba(59,91,219,0.08)" strokeWidth="6" />
-        <motion.circle
-          cx="36" cy="36" r={r} fill="none"
-          stroke="#3B5BDB" strokeWidth="6"
-          strokeLinecap="round"
-          strokeDasharray={circ}
-          initial={{ strokeDashoffset: circ }}
-          animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="mono text-[18px] font-700 text-[#3B5BDB] leading-none">{value}</span>
-        <span className="text-[9px] font-bold text-black/30 uppercase tracking-wider">%</span>
-      </div>
-    </div>
-  );
-}
 
 export default function TodosPage() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -46,7 +24,23 @@ export default function TodosPage() {
   const [newDate, setNewDate] = useState("");
   const [newReminder, setNewReminder] = useState("");
 
+  const [focusTask, setFocusTask] = useState<Todo | null>(null);
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
+  const [isTimerRunning, setIsTimerRunning] = useState(false);
+
   useEffect(() => { fetchTodos(); }, []);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isTimerRunning && timeLeft > 0) {
+      interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
+    } else if (timeLeft === 0 && isTimerRunning) {
+      if ("vibrate" in navigator) navigator.vibrate([200, 100, 200, 100, 200]);
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      setIsTimerRunning(false);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerRunning, timeLeft]);
 
   const fetchTodos = async () => {
     try {
@@ -80,6 +74,10 @@ export default function TodosPage() {
   };
 
   const toggleTodo = async (id: string, current: boolean) => {
+    if (!current) {
+      if ("vibrate" in navigator) navigator.vibrate(50);
+      confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 }, colors: ['#3B5BDB', '#10B981', '#F59E0B'] });
+    }
     setTodos(todos.map(t => t._id === id ? { ...t, completed: !current } : t));
     try {
       await fetch(`/api/todos/${id}`, {
@@ -140,7 +138,7 @@ export default function TodosPage() {
         <AnimatePresence>
           {todos.length === 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card rounded-[1.5rem] p-8 text-center">
-              <img src="/clay-todo.png" alt="" className="w-20 h-20 object-contain mx-auto mb-3 opacity-50 mix-blend-multiply" />
+              <img src="/animations/clay_todos.png" alt="No Tasks" className="w-32 h-32 object-contain mx-auto mb-2 opacity-80 mix-blend-multiply" />
               <p className="text-[14px] font-medium text-black/40">No tasks yet. Add one below!</p>
             </motion.div>
           )}
@@ -191,6 +189,13 @@ export default function TodosPage() {
                   </div>
                 )}
               </div>
+
+              {!todo.completed && (
+                <motion.button whileTap={{ scale: 0.8 }} onClick={(e) => { e.stopPropagation(); setFocusTask(todo); setTimeLeft(25 * 60); setIsTimerRunning(false); }}
+                  className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Play className="w-4 h-4 ml-0.5" />
+                </motion.button>
+              )}
 
               <motion.button whileTap={{ scale: 0.8 }} onClick={(e) => { e.stopPropagation(); deleteTodo(todo._id); }}
                 className="p-2 rounded-xl text-black/20 hover:text-red-500 hover:bg-red-50 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100">
@@ -254,7 +259,35 @@ export default function TodosPage() {
             </motion.div>
           </>
         )}
-      </AnimatePresence>
+
+          {/* Focus Mode Overlay */}
+          {focusTask && (
+            <motion.div initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: "100%", opacity: 0 }} transition={spring}
+              className="fixed bottom-0 left-0 right-0 z-[110] bg-[#1A1A2E] text-white rounded-t-[2rem] p-8 pb-32 flex flex-col items-center shadow-2xl">
+              <button onClick={() => setFocusTask(null)} className="absolute top-6 right-6 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white/60 hover:text-white">
+                <X className="w-4 h-4" />
+              </button>
+              <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-6">
+                <Clock className="w-6 h-6 text-indigo-400" />
+              </div>
+              <p className="text-[14px] font-bold text-white/50 uppercase tracking-widest mb-2">Focusing On</p>
+              <h3 className="text-[20px] font-bold text-center mb-8 px-4 leading-tight">{focusTask.title}</h3>
+              
+              <div className="text-[72px] font-bold font-mono tracking-tighter leading-none mb-10 text-transparent bg-clip-text bg-gradient-to-br from-indigo-300 to-white">
+                {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}
+              </div>
+              
+              <div className="flex items-center gap-6">
+                <button onClick={() => { setTimeLeft(25 * 60); setIsTimerRunning(false); }} className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                  <Square className="w-5 h-5 text-white/70" fill="currentColor" />
+                </button>
+                <button onClick={() => setIsTimerRunning(!isTimerRunning)} className="w-20 h-20 rounded-full bg-indigo-500 flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.4)] hover:scale-105 transition-transform">
+                  {isTimerRunning ? <Pause className="w-8 h-8 text-white" fill="currentColor" /> : <Play className="w-8 h-8 text-white ml-1" fill="currentColor" />}
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
     </main>
   );
 }

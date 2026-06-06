@@ -29,6 +29,9 @@ const LogSchema = new mongoose.Schema({
     type: Date,
     required: false,
   },
+  mediaUrls: [{
+    type: String,
+  }],
 }, { timestamps: true });
 
 // Ensure we don't have multiple logs for the same user on the same date

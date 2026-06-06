@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Clock } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
+import { RiveEmptyState } from "@/components/RiveEmptyState";
 
 interface Log { _id: string; date: string; dayOfWeek: string; description: string; weekNumber: number; }
 
@@ -51,6 +52,7 @@ export default function PreviousWeeksPage() {
 
       {sortedWeeks.length === 0 ? (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card rounded-[1.5rem] p-8 text-center">
+          <img src="/animations/clay_previous.png" alt="No History" className="w-32 h-32 object-contain mx-auto mb-2 opacity-80 mix-blend-multiply" />
           <p className="text-[14px] font-medium text-black/40">No previous weeks found yet.</p>
           <p className="text-[12px] text-black/30 mt-1">Keep logging daily to see your history here.</p>
         </motion.div>

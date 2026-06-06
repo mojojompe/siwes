@@ -3,11 +3,14 @@
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Plus, X, Loader2, Tag, Bell, Trash2, Edit3, Search, Lightbulb, CheckSquare, FileText, Sparkles, Mic } from "lucide-react";
+import confetti from "canvas-confetti";
+import { FileText, Plus, Search, Calendar, ChevronDown, CheckCircle2, Circle, Lightbulb, Bell, Mic, Loader2, Sparkles, Image as ImageIcon, X, Tag, Trash2, Edit3, Crown, CheckSquare } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
 import { useRouter } from "next/navigation";
+import { ProModal } from "@/components/ProModal";
+import { RiveEmptyState } from "@/components/RiveEmptyState";
 
-interface Log { _id: string; date: string; description: string; dayOfWeek: string; weekNumber: number; tags?: string[]; reminder?: string; }
+interface Log { _id: string; date: string; description: string; dayOfWeek: string; weekNumber: number; tags?: string[]; reminder?: string; mediaUrls?: string[]; }
 interface Todo { _id: string; title: string; completed: boolean; date: string; }
 interface Note { _id: string; title: string; content: string; }
 
@@ -30,9 +33,12 @@ export default function HomePage() {
   const [description, setDescription] = useState("");
   const [tagsStr, setTagsStr] = useState("");
   const [reminder, setReminder] = useState("");
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -40,8 +46,25 @@ export default function HomePage() {
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef<any>(null);
   const [showAiTooltip, setShowAiTooltip] = useState(false);
+  const [showTipsPointer, setShowTipsPointer] = useState(false);
+  const [showNotifPointer, setShowNotifPointer] = useState(false);
+  const [showProModal, setShowProModal] = useState(false);
 
-  useEffect(() => { fetchAllData(); }, []);
+  useEffect(() => { 
+    fetchAllData(); 
+    
+    // Sequential pointers
+    setShowTipsPointer(true);
+    const t1 = setTimeout(() => {
+      setShowTipsPointer(false);
+      setShowNotifPointer(true);
+    }, 3500);
+    const t2 = setTimeout(() => {
+      setShowNotifPointer(false);
+    }, 7000);
+    
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
 
   const fetchAllData = async () => {
     try {
@@ -55,7 +78,7 @@ export default function HomePage() {
         const data = await resNotifs.json();
         const dbUnread = data.notifications.filter((n: any) => !n.isRead).length;
         const readStaticIds = JSON.parse(localStorage.getItem("readStaticUpdates") || "[]");
-        const staticUnread = Math.max(0, 4 - readStaticIds.length);
+        const staticUnread = Math.max(0, 7 - readStaticIds.length);
         setUnreadCount(dbUnread + staticUnread);
       }
     } catch (err) { console.error(err); }
@@ -81,6 +104,7 @@ export default function HomePage() {
       description,
       tags: tagsStr.split(",").map(t => t.trim()).filter(Boolean),
       reminder: reminder || null,
+      mediaUrls,
     };
 
     try {
@@ -89,6 +113,20 @@ export default function HomePage() {
       const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to save log");
+      
+      if ("vibrate" in navigator) navigator.vibrate(50);
+
+      // Check if this log completed a 5-day week
+      if (!editId) {
+        const weekNum = data.log?.weekNumber;
+        if (weekNum) {
+          const logsInWeek = logs.filter(l => l.weekNumber === weekNum).length + 1; // +1 for the new log
+          if (logsInWeek === 5) {
+            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, zIndex: 200 });
+          }
+        }
+      }
+
       closeSheet(); fetchAllData();
     } catch (err: any) { setError(err.message); } finally { setSaving(false); }
   };
@@ -98,8 +136,10 @@ export default function HomePage() {
     try { await fetch(`/api/logs/${id}`, { method: "DELETE" }); } catch { fetchAllData(); }
   };
 
-  const openNew = () => { 
-    setEditId(null); setDate(new Date().toISOString().split("T")[0]); setDescription(""); setTagsStr(""); setReminder(""); setError(""); setShowAdd(true); 
+  const openNew = () => {
+    setEditId(null); setDate(new Date().toISOString().split("T")[0]);
+    setDescription(""); setTagsStr(""); setReminder(""); setMediaUrls([]);
+    setShowAdd(true);
     setShowAiTooltip(true);
     setTimeout(() => setShowAiTooltip(false), 3000);
   };
@@ -108,14 +148,44 @@ export default function HomePage() {
     setEditId(log._id);
     setDate(new Date(log.date).toISOString().split("T")[0]);
     setDescription(log.description);
-    setTagsStr(log.tags ? log.tags.join(", ") : "");
-    setReminder(log.reminder ? new Date(log.reminder).toISOString().slice(0, 16) : "");
-    setError(""); setShowAdd(true);
+    setTagsStr(log.tags?.join(", ") || "");
+    setReminder(log.reminder ? new Date(log.reminder).toTimeString().slice(0,5) : "");
+    setMediaUrls(log.mediaUrls || []);
+    setShowAdd(true);
     setShowAiTooltip(true);
     setTimeout(() => setShowAiTooltip(false), 3000);
   };
 
-  const closeSheet = () => setShowAdd(false);
+  const closeSheet = () => { setShowAdd(false); };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "siwes_tracker");
+
+    try {
+      const res = await fetch("https://api.cloudinary.com/v1_1/dg3xx14ui/image/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.secure_url) {
+        setMediaUrls(prev => [...prev, data.secure_url]);
+      } else {
+        alert("Upload failed. Check Cloudinary settings.");
+      }
+    } catch (err) {
+      console.error("Upload failed", err);
+      alert("Network error during upload.");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   // Filter Data
   const query = searchQuery.toLowerCase().trim();
@@ -125,6 +195,7 @@ export default function HomePage() {
 
   if (loading || !session) return <Skeleton />;
   const user = session.user as any;
+  const isPro = user?.isPro === true;
 
   // Group logs by week for normal view
   const groupedLogs = logs.reduce((acc, log) => {
@@ -139,21 +210,51 @@ export default function HomePage() {
       <div className="sticky top-0 z-[60] pt-5 pb-4 -mx-5 px-5 mb-6">
         <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="heading-display text-[26px] text-[#1A1A2E]">Logs</h1>
+            <div className="flex items-center gap-3">
+              <h1 className="heading-display text-[26px] text-[#1A1A2E]">Logs</h1>
+              {isPro ? (
+                <span className="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 text-white text-[10px] font-bold uppercase tracking-wider shadow-sm flex items-center gap-1"><Crown className="w-3 h-3" /> PRO</span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full bg-black/5 text-black/40 text-[10px] font-bold uppercase tracking-wider">Free</span>
+              )}
+            </div>
             <p className="text-[13px] font-medium text-black/40 mt-0.5">Welcome back, {user.firstName}</p>
           </div>
           <div className="flex gap-3">
-            <motion.button whileTap={{ scale: 0.9 }} onClick={() => router.push("/tips")} className="w-11 h-11 rounded-2xl bg-white shadow-sm flex items-center justify-center text-[#3B5BDB] border border-[#3B5BDB]/20 hover:bg-[#3B5BDB]/5 transition-colors">
-              <Lightbulb className="w-5 h-5 fill-[#3B5BDB]/20" />
-            </motion.button>
-            <motion.button whileTap={{ scale: 0.9 }} onClick={() => router.push("/notifications")} className="w-11 h-11 rounded-2xl bg-white shadow-sm flex items-center justify-center text-amber-500 border border-amber-500/20 hover:bg-amber-50 transition-colors relative">
-              <Bell className="w-5 h-5 fill-amber-500/20" />
-              {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm border-2 border-[#fafafa]">
-                  {unreadCount > 9 ? "9+" : unreadCount}
-                </span>
-              )}
-            </motion.button>
+            <div className="relative">
+              <motion.button whileTap={{ scale: 0.9 }} onClick={() => router.push("/tips")} className="w-11 h-11 rounded-2xl bg-white shadow-sm flex items-center justify-center text-[#3B5BDB] border border-[#3B5BDB]/20 hover:bg-[#3B5BDB]/5 transition-colors">
+                <Lightbulb className="w-5 h-5 fill-[#3B5BDB]/20" />
+              </motion.button>
+              <AnimatePresence>
+                {showTipsPointer && (
+                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.8 }}
+                    className="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-50">
+                    <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-indigo-600 rotate-45" />
+                    Check the Guide!
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            
+            <div className="relative">
+              <motion.button whileTap={{ scale: 0.9 }} onClick={() => router.push("/notifications")} className="w-11 h-11 rounded-2xl bg-white shadow-sm flex items-center justify-center text-amber-500 border border-amber-500/20 hover:bg-amber-50 transition-colors relative">
+                <Bell className="w-5 h-5 fill-amber-500/20" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm border-2 border-[#fafafa]">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </motion.button>
+              <AnimatePresence>
+                {showNotifPointer && (
+                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.8 }}
+                    className="absolute -bottom-12 right-0 bg-amber-500 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-50">
+                    <div className="absolute -top-1 right-4 w-2 h-2 bg-amber-500 rotate-45" />
+                    New updates!
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </motion.header>
 
@@ -229,7 +330,7 @@ export default function HomePage() {
             <motion.div key="normal" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
               {sortedWeeks.length === 0 ? (
                 <div className="glass-card rounded-[1.5rem] p-8 text-center mt-4">
-                  <div className="w-16 h-16 bg-black/5 rounded-full flex items-center justify-center mx-auto mb-4"><Calendar className="w-8 h-8 text-black/20" /></div>
+                  <img src="/animations/clay_logs.png" alt="No Logs" className="w-32 h-32 object-contain mx-auto mb-2 opacity-80 mix-blend-multiply" />
                   <p className="text-[14px] font-medium text-black/40">No logs for this week yet.</p>
                   <p className="text-[12px] text-black/30 mt-1">Tap the button below to add your first entry.</p>
                 </div>
@@ -258,6 +359,13 @@ export default function HomePage() {
                             )}
                             {log.tags?.map(t => (
                               <span key={t} className="inline-flex items-center gap-1 text-[10px] mono px-2 py-1 bg-black/5 text-black/50 rounded"><Tag className="w-2.5 h-2.5" /> {t}</span>
+                            ))}
+                          </div>
+                        )}
+                        {log.mediaUrls && log.mediaUrls.length > 0 && (
+                          <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                            {log.mediaUrls.map((url, i) => (
+                              <img key={i} src={url} alt="Log attachment" className="w-14 h-14 rounded-lg object-cover border border-black/5 flex-shrink-0" />
                             ))}
                           </div>
                         )}
@@ -326,6 +434,10 @@ export default function HomePage() {
                         {/* AI Rephrase Button */}
                         <div className="relative">
                           <button type="button" onClick={async () => {
+                            if (!isPro) {
+                              setShowProModal(true);
+                              return;
+                            }
                             if (!description.trim()) return;
                             setSaving(true);
                             try {
@@ -333,7 +445,7 @@ export default function HomePage() {
                               const data = await res.json();
                               if (data.rephrased) setDescription(data.rephrased);
                             } catch (err) {} finally { setSaving(false); }
-                          }} className="text-amber-500/60 hover:text-amber-500 transition-colors flex items-center gap-1">
+                          }} className={`${isPro ? "text-amber-500/60 hover:text-amber-500" : "text-amber-500/40 hover:text-amber-500/60"} transition-colors flex items-center gap-1`}>
                             <Sparkles className="w-5 h-5" />
                           </button>
                           
@@ -347,9 +459,47 @@ export default function HomePage() {
                             )}
                           </AnimatePresence>
                         </div>
+                        
+                        {/* Image Upload Button */}
+                        <div className="relative flex items-center">
+                          <button type="button" onClick={() => {
+                            if (!isPro) {
+                              setShowProModal(true);
+                              return;
+                            }
+                            fileInputRef.current?.click();
+                          }} className={`text-black/40 hover:text-emerald-500 transition-colors flex items-center justify-center p-1.5 rounded-lg hover:bg-emerald-50 ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                            {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
+                          </button>
+                          <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} />
+                        </div>
                       </div>
                     </div>
                     <textarea required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What did you learn or do today?" className="w-full px-4 py-3.5 input-premium text-[14px] font-medium min-h-[120px] resize-none leading-relaxed" />
+                    
+                    {/* Media Upload Previews */}
+                    {mediaUrls.length > 0 && (
+                      <div className="flex gap-2 mt-3 overflow-x-auto pb-2 scrollbar-hide">
+                        {mediaUrls.map((url, i) => (
+                          <div key={i} className="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-black/5">
+                            <img src={url} alt="Upload preview" className="w-full h-full object-cover" />
+                            <button type="button" onClick={() => setMediaUrls(prev => prev.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 w-4 h-4 bg-black/50 hover:bg-red-500 transition-colors rounded-full text-white flex items-center justify-center">
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                        {uploading && (
+                          <div className="w-16 h-16 rounded-xl bg-black/5 flex items-center justify-center flex-shrink-0 border border-black/5">
+                            <Loader2 className="w-5 h-5 text-black/30 animate-spin" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {uploading && mediaUrls.length === 0 && (
+                      <div className="mt-3 flex items-center gap-2 text-[12px] font-bold text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg border border-emerald-100">
+                        <Loader2 className="w-3 h-3 animate-spin" /> Uploading image to Cloudinary...
+                      </div>
+                    )}
                   </div>
                   
                   <div className="grid grid-cols-2 gap-3">
@@ -383,6 +533,12 @@ export default function HomePage() {
           </>
         )}
       </AnimatePresence>
+
+      <ProModal 
+        isOpen={showProModal} 
+        onClose={() => setShowProModal(false)} 
+        userEmail={user?.email || "user@siwestracker.com"} 
+      />
     </main>
   );
 }

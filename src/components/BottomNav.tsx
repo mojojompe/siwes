@@ -83,7 +83,7 @@ export function BottomNav() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: i * 0.04, ...springConfig }}
                     >
-                      {tab.label === "AI Chat" ? (
+                      {false ? (
                         <button
                           onClick={() => {
                             setShowComingSoon(true);
@@ -209,33 +209,6 @@ export function BottomNav() {
           </motion.button>
         </motion.div>
       </div>
-      {/* Coming Soon Drawer */}
-      <AnimatePresence>
-        {showComingSoon && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowComingSoon(false)} className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px]" />
-            <motion.div
-              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={springConfig}
-              className="fixed bottom-0 left-0 right-0 z-50 glass-card rounded-t-[2rem] p-6 pb-28 shadow-[0_-20px_60px_rgba(0,0,0,0.1)]"
-            >
-              <div className="flex flex-col items-center text-center pt-2">
-                <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-5 shadow-inner">
-                  <Info className="w-7 h-7 text-[#3B5BDB]" />
-                </div>
-                <h3 className="heading-display text-[22px] text-[#1A1A2E] mb-2">Coming Soon</h3>
-                <p className="text-[14px] text-black/50 font-medium mb-8 leading-relaxed max-w-[260px]">
-                  We are working hard to bring this feature to you in the next update.
-                </p>
-                <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowComingSoon(false)}
-                  className="w-full py-4 btn-primary rounded-xl font-bold text-[15px]">
-                  Got it, thanks!
-                </motion.button>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </>
   );
 }

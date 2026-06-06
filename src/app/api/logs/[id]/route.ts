@@ -12,11 +12,12 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     const userId = (session.user as any).id;
     const body = await req.json();
-    const { description, tags, reminder } = body;
+    const { description, tags, reminder, mediaUrls } = body;
 
     const updateData: any = {};
     if (description !== undefined) updateData.description = description;
     if (tags !== undefined) updateData.tags = tags;
+    if (mediaUrls !== undefined) updateData.mediaUrls = mediaUrls;
     if (reminder !== undefined) updateData.reminder = reminder ? new Date(reminder) : null;
 
     await connectToDatabase();

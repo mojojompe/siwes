@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import connectToDatabase from "@/lib/db";
-import { User } from "@/models/User";
 import { Chat } from "@/models/Chat";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { rateLimit } from "@/lib/rateLimit";
+import { sanitize } from "@/lib/sanitize";
 
 export async function GET() {
   try {
@@ -13,18 +13,21 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    await connectToDatabase();
-    
-    let chat = await Chat.findOne({ userId: (session.user as any).id });
-    if (!chat) {
-      chat = await Chat.create({ userId: (session.user as any).id, messages: [] });
+    if (!(session.user as any).isPro) {
+      return NextResponse.json({ error: "Premium feature. Upgrade to Pro required." }, { status: 403 });
     }
 
-    return NextResponse.json({ messages: chat.messages });
+    await connectToDatabase();
+    
+    // Looser Rate limit: 200 requests per minute
+    const rl = await rateLimit(`chat_get_${(session.user as any).id}`, 200, 60000);
+    if (!rl.success) return NextResponse.json({ error: "Too Many Requests" }, { status: 429 });
+
+    const chats = await Chat.find({ userId: (session.user as any).id }).sort({ updatedAt: -1 });
+
+    return NextResponse.json({ chats });
   } catch (err: any) {
-    console.error("Chat GET Error:", err);
-    require("fs").writeFileSync("C:/Users/HP/Desktop/Work/React/siwes/chat_error.txt", err.stack || err.message);
-    return NextResponse.json({ error: "Failed to fetch chat history", details: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch chats", details: err.message }, { status: 500 });
   }
 }
 
@@ -34,52 +37,28 @@ export async function POST(req: Request) {
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const { text } = await req.json();
-    if (!text || typeof text !== "string") {
-      return NextResponse.json({ error: "Invalid text" }, { status: 400 });
+    
+    if (!(session.user as any).isPro) {
+      return NextResponse.json({ error: "Premium feature. Upgrade to Pro required." }, { status: 403 });
     }
+
+    // Looser Rate limit: 200 requests per minute
+    const rl = await rateLimit(`chat_post_${(session.user as any).id}`, 200, 60000);
+    if (!rl.success) return NextResponse.json({ error: "Too Many Requests" }, { status: 429 });
+
+    const body = sanitize(await req.json());
+    const { title } = body;
 
     await connectToDatabase();
     
-    let chat = await Chat.findOne({ userId: (session.user as any).id });
-    if (!chat) {
-      chat = await Chat.create({ userId: (session.user as any).id, messages: [] });
-    }
-
-    // Add user message to DB
-    chat.messages.push({ role: "user", content: text });
-    
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      throw new Error("GEMINI_API_KEY is not configured.");
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-    // Format history for Gemini SDK
-    // The SDK expects history as { role: "user" | "model", parts: [{ text: "..." }] }
-    const history = chat.messages.slice(0, -1).map((msg: any) => ({
-      role: msg.role,
-      parts: [{ text: msg.content }]
-    }));
-
-    const chatSession = model.startChat({
-      history,
-      systemInstruction: "You are a helpful, friendly, and concise AI assistant for a university student undergoing their SIWES (industrial training). Help them brainstorm daily logs, organize tasks, explain concepts, and provide general productivity advice. Keep responses clear and well-structured, using markdown formatting when helpful.",
+    const newChat = await Chat.create({ 
+      userId: (session.user as any).id, 
+      title: title || "New Chat",
+      messages: [] 
     });
 
-    const result = await chatSession.sendMessage(text);
-    const responseText = result.response.text();
-
-    // Add model response to DB
-    chat.messages.push({ role: "model", content: responseText });
-    await chat.save();
-
-    return NextResponse.json({ response: responseText });
+    return NextResponse.json({ chat: newChat });
   } catch (err: any) {
-    console.error("Chat POST Error:", err);
-    return NextResponse.json({ error: "Failed to generate response", details: err.message }, { status: 500 });
+    return NextResponse.json({ error: "Failed to create chat", details: err.message }, { status: 500 });
   }
 }

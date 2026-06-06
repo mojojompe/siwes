@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, X, Edit3, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
+import { RiveEmptyState } from "@/components/RiveEmptyState";
 
 interface Note { _id: string; title: string; content: string; updatedAt: string; }
 
@@ -88,7 +89,7 @@ export default function NotesPage() {
       {/* Notes Grid - Masonry via CSS columns */}
       {notes.length === 0 ? (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card rounded-[1.5rem] p-8 text-center">
-          <img src="/clay-notes.png" alt="" className="w-20 h-20 object-contain mx-auto mb-3 opacity-50 mix-blend-multiply" />
+          <img src="/animations/clay_notes.png" alt="No Notes" className="w-32 h-32 object-contain mx-auto mb-2 opacity-80 mix-blend-multiply" />
           <p className="text-[14px] font-medium text-black/40">No notes yet. Create your first one!</p>
         </motion.div>
       ) : (

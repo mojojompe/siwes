@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Settings, Bell, Shield, Hash, BookOpen, ChevronRight, LogOut, X, Info, FileText } from "lucide-react";
+import { Settings, Bell, Shield, Hash, BookOpen, ChevronRight, LogOut, X, Info, FileText, Crown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
@@ -21,7 +21,7 @@ export default function ProfilePage() {
         res.json().then(data => {
           const dbUnread = data.notifications.filter((n: any) => !n.isRead).length;
           const readStaticIds = JSON.parse(localStorage.getItem("readStaticUpdates") || "[]");
-          const staticUnread = Math.max(0, 4 - readStaticIds.length);
+          const staticUnread = Math.max(0, 7 - readStaticIds.length);
           setUnreadCount(dbUnread + staticUnread);
         });
       }
@@ -48,8 +48,13 @@ export default function ProfilePage() {
   return (
     <main className="p-5 pb-32 flex-1 bg-[#fafafa] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] min-h-screen relative">
       {/* Header */}
-      <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="sticky top-0 z-[60] pt-5 pb-4 -mx-5 px-5 mb-8">
+      <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="sticky top-0 z-[60] pt-5 pb-4 -mx-5 px-5 mb-8 flex items-center justify-between">
         <h1 className="heading-display text-[26px] text-[#1A1A2E]">Profile</h1>
+        {user.isPro ? (
+          <span className="px-3 py-1 rounded-full bg-gradient-to-r from-amber-400 to-amber-600 text-white text-[11px] font-bold uppercase tracking-wider shadow-md flex items-center gap-1.5"><Crown className="w-3.5 h-3.5" /> SIWES PRO</span>
+        ) : (
+          <span className="px-3 py-1 rounded-full bg-black/5 text-black/40 text-[11px] font-bold uppercase tracking-wider">Free Plan</span>
+        )}
       </motion.header>
 
       <div className="space-y-4">

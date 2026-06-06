@@ -18,6 +18,23 @@ interface Notification {
 
 const STATIC_UPDATES: Notification[] = [
   {
+    _id: "static-update-pro-live",
+    title: "SIWES Tracker Pro is Live! 👑",
+    message: "Unlock Premium features including Media Uploads, unlimited Context-Aware AI Chat, and the AI log rephraser! Tap Profile to upgrade.",
+    isRead: false,
+    type: "info",
+    actionLink: "/profile",
+    createdAt: new Date().toISOString()
+  },
+  {
+    _id: "static-update-v3-1",
+    title: "Major Update: v3.0 is here! 🚀",
+    message: "We've added Image Uploads, Activity Heatmap, Focus Mode, and Offline Sync! Enjoy the new SIWES Tracker features.",
+    isRead: false,
+    type: "info",
+    createdAt: new Date().toISOString()
+  },
+  {
     _id: "static-update-v2-tips",
     title: "Tips Page Revamped! 📚",
     message: "We've overhauled the SIWES Tips page with a comprehensive 3-phase guide to help you from commencement to final evaluation.",

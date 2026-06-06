@@ -34,7 +34,8 @@ export const authOptions: NextAuthOptions = {
           lastName: user.lastName, 
           department: user.department,
           matricNumber: user.matricNumber,
-          hasReadDisclaimer: user.hasReadDisclaimer
+          hasReadDisclaimer: user.hasReadDisclaimer,
+          isPro: user.isPro
         };
       }
     })
@@ -48,6 +49,7 @@ export const authOptions: NextAuthOptions = {
         token.department = (user as any).department;
         token.matricNumber = (user as any).matricNumber;
         token.hasReadDisclaimer = (user as any).hasReadDisclaimer;
+        token.isPro = (user as any).isPro;
       }
       
       // Handle session updates (e.g. from disclaimer page)
@@ -58,6 +60,9 @@ export const authOptions: NextAuthOptions = {
         token.matricNumber = session.user.matricNumber ?? token.matricNumber;
         if (session.user.hasReadDisclaimer !== undefined) {
           token.hasReadDisclaimer = session.user.hasReadDisclaimer;
+        }
+        if (session.user.isPro !== undefined) {
+          token.isPro = session.user.isPro;
         }
       }
       
@@ -71,6 +76,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).department = token.department;
         (session.user as any).matricNumber = token.matricNumber;
         (session.user as any).hasReadDisclaimer = token.hasReadDisclaimer;
+        (session.user as any).isPro = token.isPro;
       }
       return session;
     }

@@ -20,12 +20,37 @@ export default function StreaksPage() {
   const [data, setData] = useState<StreaksData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const [logs, setLogs] = useState<any[]>([]);
+
   useEffect(() => {
     fetch("/api/streaks")
       .then(res => res.json())
       .then(d => { setData(d); setLoading(false); })
       .catch(console.error);
+
+    fetch("/api/logs")
+      .then(res => res.json())
+      .then(d => setLogs(d.logs || []))
+      .catch(console.error);
   }, []);
+
+  const heatmapDays = (() => {
+    const days = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // 140 days (20 weeks).
+    // We want the grid to flow top-to-bottom, left-to-right.
+    // But a simple flex container works too.
+    for (let i = 139; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split("T")[0];
+      const hasLog = logs.some((l: any) => new Date(l.date).toISOString().split("T")[0] === dateStr);
+      days.push({ date: dateStr, logged: hasLog });
+    }
+    return days;
+  })();
 
   if (loading || !data) return <Skeleton />;
 
@@ -86,7 +111,7 @@ export default function StreaksPage() {
       </div>
 
       {/* Heatmap/Recent Days */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, ...spring }} className="glass-card rounded-[1.5rem] p-6 relative z-10">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, ...spring }} className="glass-card rounded-[1.5rem] p-6 relative z-10 mb-6">
         <div className="flex items-center gap-3 mb-5">
           <Calendar className="w-5 h-5 text-[#3B5BDB]" />
           <h3 className="text-[16px] font-bold text-[#1A1A2E]">Last 14 Days</h3>
@@ -109,6 +134,48 @@ export default function StreaksPage() {
               </span>
             </div>
           ))}
+        </div>
+      </motion.div>
+
+      {/* GitHub-style Heatmap */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35, ...spring }} className="glass-card rounded-[1.5rem] p-6 relative z-10">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center">
+            <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-emerald-500">
+              <path d="M4 4h16v16H4V4z" fill="currentColor" fillOpacity="0.2" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+              <path d="M4 10h16M10 4v16" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <h3 className="text-[16px] font-bold text-[#1A1A2E]">Activity Map</h3>
+        </div>
+        
+        <div className="overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-1.5" style={{ width: 'max-content' }}>
+            {/* Group days into weeks (columns) */}
+            {Array.from({ length: 20 }).map((_, weekIndex) => (
+              <div key={weekIndex} className="flex flex-col gap-1.5">
+                {heatmapDays.slice(weekIndex * 7, (weekIndex + 1) * 7).map((day) => (
+                  <div
+                    key={day.date}
+                    title={day.date}
+                    className={`w-[14px] h-[14px] rounded-[3px] transition-colors ${
+                      day.logged 
+                        ? 'bg-emerald-500 shadow-[0_0_4px_rgba(16,185,129,0.3)] border border-emerald-600' 
+                        : 'bg-black/5 border border-black/5'
+                    }`}
+                  />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="flex items-center justify-end gap-1.5 mt-3 text-[10px] font-bold text-black/40">
+          <span>Less</span>
+          <div className="w-3 h-3 rounded-[2px] bg-black/5" />
+          <div className="w-3 h-3 rounded-[2px] bg-emerald-200" />
+          <div className="w-3 h-3 rounded-[2px] bg-emerald-400" />
+          <div className="w-3 h-3 rounded-[2px] bg-emerald-500" />
+          <span>More</span>
         </div>
       </motion.div>
     </main>
