@@ -30,7 +30,7 @@ export default function StreaksPage() {
   if (loading || !data) return <Skeleton />;
 
   return (
-    <main className="p-5 pb-32 flex-1 mesh-bg min-h-screen relative overflow-hidden">
+    <main className="p-5 pb-32 flex-1 mesh-bg min-h-screen relative">
       <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="flex items-center gap-4 sticky top-0 z-[60] pt-5 pb-4 -mx-5 px-5 mb-8">
         <motion.button whileTap={{ scale: 0.9 }} onClick={() => router.back()} className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-black/50 border border-black/5 hover:text-black transition-colors">
           <ChevronLeft className="w-5 h-5" />

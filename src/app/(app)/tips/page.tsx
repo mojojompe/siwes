@@ -9,55 +9,57 @@ const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
 
 const TIPS_DATA = [
   {
-    id: "doc-placement",
-    title: "Documentation & Placement",
+    id: "phase-1",
+    title: "Phase 1: Commencement",
     icon: FileText,
     color: "text-blue-500",
     bg: "bg-blue-50",
     border: "border-blue-100",
     content: [
-      { title: "Get Your Introduction Letter", desc: "Collect an introductory or placement letter from your departmental SIWES coordinator." },
-      { title: "Secure an Attachment", desc: "Apply to organizations, companies, or government agencies relevant to your course of study. You can apply online (e.g., via LinkedIn or company emails) or submit your CV and letter physically." },
-      { title: "Acceptance Letter", desc: "Once accepted, get an official Acceptance Letter from the organization." },
-      { title: "Submit to School", desc: "Return the Acceptance Letter to your institution's SIWES unit to finalize your placement." }
+      { 
+        title: "1. The SIWES Job Reporting Form (IT/LCU/001)", 
+        desc: "Purpose: This internal university form officially notifies the LCU SIWES center that you have commenced your training and provides your location so they can plan supervisory visits.\n\nHow to Fill:\n• Fill in your personal details, including your Surname, Matric No., Course of Study, and Level.\n• Provide full details of your placement, including the company name, company address, and the name and title of your immediate supervisor.\n• Include your personal mailing address, residence during the training, and your guardian's contact details.\n• Have your industry supervisor apply their signature, date, and official stamp at the bottom.\n\nWhere to Submit: You must submit this physically to the SIWES Co-ordinating Centre at the Senate Building of the university immediately after your training commences."
+      },
+      { 
+        title: "2. ITF Students Commencement of Attachment Form (SCAF)", 
+        desc: "Purpose: This registers you officially with the national ITF body for monitoring and eventual payment of your SIWES allowance.\n\nHow to Fill:\n• Fill in the top section with the local ITF Area Office, the Name of the Organization, Location Address, Institution, and the Organization's contact details.\n• In the table provided, fill in your Name, Matric No., Course of Study, the Period of Attachment in Months, and the exact Dates of Commencement and Completion.\n• Ensure your employer signs, dates, and stamps the bottom left corner.\n\nWhere to Submit: The completed SCAF must be sent to the nearest ITF Area Office (the branch closest to your employer's location) within the first 2 weeks of commencement."
+      }
     ]
   },
   {
-    id: "registration",
-    title: "Registration with ITF",
-    icon: Stamp,
-    color: "text-emerald-500",
-    bg: "bg-emerald-50",
-    border: "border-emerald-100",
-    content: [
-      { title: "Collect SIWES Documents", desc: "Obtain the necessary official documents from your school (e.g., ITF Form 8, SCAF, and Logbook)." },
-      { title: "Fill Forms", desc: "Fill out your Job Reporting Form within the first two weeks of resuming at your workplace and stamp your documents appropriately." }
-    ]
-  },
-  {
-    id: "during-attachment",
-    title: "During the Attachment",
+    id: "phase-2",
+    title: "Phase 2: During Attachment",
     icon: Briefcase,
     color: "text-amber-500",
     bg: "bg-amber-50",
     border: "border-amber-100",
     content: [
-      { title: "Maintain the Logbook", desc: "Record all your daily activities, tasks, and observations in the SIWES Logbook." },
-      { title: "Get Endorsements", desc: "Have your industry-based supervisor sign your logbook weekly and stamp it periodically." },
-      { title: "Supervision", desc: "Cooperate with your school's visiting supervisor when they come to assess you at your workplace." }
+      { 
+        title: "Maintain a Daily Logbook", 
+        desc: "While you are working, you will need to maintain a daily Logbook detailing your tasks (where the Siwes Tracker comes in). This must be signed weekly by your industry supervisor."
+      },
+      { 
+        title: "Institutional Supervision", 
+        desc: "During this period, an institutional supervisor from your university will visit your workplace to assess your progress, check your logbook, and evaluate the company's facilities. Their assessment will later be formally recorded in Part C of ITF Form 8."
+      }
     ]
   },
   {
-    id: "defense",
-    title: "Final Submission & Defense",
+    id: "phase-3",
+    title: "Phase 3: End of the Program",
     icon: GraduationCap,
     color: "text-purple-500",
     bg: "bg-purple-50",
     border: "border-purple-100",
     content: [
-      { title: "Logbook Submission", desc: "Have your employer review, sign, and seal your logbook and Evaluation Form at the end of the program." },
-      { title: "Write the Report", desc: "Type and bind a comprehensive SIWES technical report detailing everything you learned and accomplished during your industrial training." },
-      { title: "Defense", desc: "Submit your report and logbook to your department, and prepare for an oral defense of your SIWES experience before a panel of lecturers." }
+      { 
+        title: "1. SIWES Employee's Evaluation Form", 
+        desc: "Purpose: A university-specific grading sheet where your employer assesses your workplace conduct, soft skills, and technical application.\n\nHow to Fill:\n• Student: You must complete items 1 through 6 (Name, Matric No., Course, Company Name, Address, and Dates of Attachment) before handing the form over to your industrial supervisor.\n• Employer: Your supervisor will grade you on metrics like Attendance, Punctuality, Creativity, and Application of Practical Skills. They will assign an Overall Assessment score ranging from Excellent to Fail. They will also sign, date, and indicate how many students they'd like to take from the institution in the future.\n\nWhere to Submit: This form must be returned under confidential cover (sealed in an envelope by the employer) and delivered through you back to the university."
+      },
+      { 
+        title: "2. ITF FORM 8 (End of Program Report Sheet)", 
+        desc: "Purpose: The master document required by the ITF to confirm completion and process your stipend. It is divided into three distinct parts.\n\nHow to Fill:\n• PART A (Student): You fill this out. Enter your academic details, the company's details, the exact duration of your attachment, and provide a brief written outline of the experience you acquired. Sign and date it.\n• PART B (Employer): Hand it to your industrial supervisor. They will state whether they agree with your outline in Part A, evaluate your overall performance, indicate if they would accept you for future attachments, and provide their official details, signature, and stamp.\n• PART C (Institution): You submit the form to your university SIWES coordinator. They will log the number of supervision visits made, assess the company's facilities, officially grade your performance (A, B, C, or D), and apply their signature and stamp.\n\nWhere to Submit: Employers are instructed to forward their completed sections to the respective institutions under seal. Once your university completely fills out Part C, the finalized Form 8 is returned to the ITF to close out your program."
+      }
     ]
   }
 ];
@@ -146,7 +148,7 @@ export default function TipsPage() {
                     </div>
                     
                     <h3 className="text-[16px] font-bold text-[#1A1A2E] mb-2">{item.title}</h3>
-                    <p className="text-[14px] text-black/60 leading-relaxed font-medium bg-black/3 p-4 rounded-xl border border-black/5">
+                    <p className="text-[14px] text-black/60 leading-relaxed font-medium bg-black/3 p-4 rounded-xl border border-black/5 whitespace-pre-wrap">
                       {item.desc}
                     </p>
                   </div>

@@ -18,6 +18,15 @@ interface Notification {
 
 const STATIC_UPDATES: Notification[] = [
   {
+    _id: "static-update-v2-tips",
+    title: "Tips Page Revamped! 📚",
+    message: "We've overhauled the SIWES Tips page with a comprehensive 3-phase guide to help you from commencement to final evaluation.",
+    isRead: false,
+    type: "info",
+    actionLink: "/tips",
+    createdAt: new Date().toISOString()
+  },
+  {
     _id: "static-update-v2-1",
     title: "Welcome to SIWES Tracker v2.0! 🎉",
     message: "We've added massive new features to supercharge your industrial training experience.",

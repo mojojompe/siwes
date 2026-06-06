@@ -44,7 +44,7 @@ export default function PreviousWeeksPage() {
   return (
     <main className="p-5 pb-32 flex-1 mesh-bg min-h-screen">
       {/* Header */}
-      <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="mb-6 pt-3">
+      <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="mb-6 pt-5 pb-4 -mx-5 px-5 sticky top-0 z-[60]">
         <h1 className="heading-display text-[26px] text-[#1A1A2E]">Previous Weeks</h1>
         <p className="text-[13px] font-medium text-black/40 mt-0.5">Review your SIWES history</p>
       </motion.header>
