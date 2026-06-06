@@ -5,6 +5,14 @@ import connectToDatabase from "@/lib/db";
 import { User } from "@/models/User";
 import { rateLimit } from "@/lib/rateLimit";
 import { sanitize } from "@/lib/sanitize";
+import { Notification } from "@/models/Notification";
+import webpush from "web-push";
+
+webpush.setVapidDetails(
+  process.env.VAPID_SUBJECT || "mailto:test@example.com",
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY as string,
+  process.env.VAPID_PRIVATE_KEY as string
+);
 
 export async function POST(req: Request) {
   try {
@@ -44,6 +52,31 @@ export async function POST(req: Request) {
       const updatedUser = await User.findByIdAndUpdate(userId, { isPro: true }, { new: true });
       if (!updatedUser) {
         return NextResponse.json({ error: "User not found" }, { status: 404 });
+      }
+
+      // Create an in-app notification
+      await Notification.create({
+        userId,
+        title: "Premium Unlocked! 👑",
+        message: "Thank you for upgrading to SIWES Tracker Pro. You now have unlimited access to all AI features!",
+        type: "system",
+        actionLink: "/home"
+      });
+
+      // Trigger System Web Push Notification if subscribed
+      if (updatedUser.pushSubscriptions && updatedUser.pushSubscriptions.length > 0) {
+        const payload = JSON.stringify({
+          title: "Premium Unlocked! 👑",
+          body: "Thank you for upgrading to SIWES Tracker Pro!",
+          url: "/home"
+        });
+
+        const pushPromises = updatedUser.pushSubscriptions.map((sub: any) =>
+          webpush.sendNotification(sub, payload).catch(err => {
+            console.error("Failed to send premium push to subscription", err);
+          })
+        );
+        await Promise.all(pushPromises);
       }
 
       return NextResponse.json({ success: true, message: "Upgraded to Pro!" });
