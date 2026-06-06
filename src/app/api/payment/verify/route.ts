@@ -48,7 +48,10 @@ export async function POST(req: Request) {
 
       return NextResponse.json({ success: true, message: "Upgraded to Pro!" });
     } else {
-      return NextResponse.json({ error: "Verification failed or amount invalid" }, { status: 400 });
+      return NextResponse.json({ 
+        error: data.message || "Verification failed or amount invalid",
+        paystackResponse: data
+      }, { status: 400 });
     }
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
