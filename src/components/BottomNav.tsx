@@ -5,11 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Home, CheckSquare, FileText, ChevronUp,
+  Home, CheckSquare, FileText, ChevronUp, AlignRight,
   Calendar, History, User, X, Flame, Bot, Info
 } from "lucide-react";
 
-const springConfig = { type: "spring" as const, stiffness: 500, damping: 35 };
+const springConfig = { type: "spring" as const, stiffness: 300, damping: 25 };
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -43,7 +43,7 @@ export function BottomNav() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={() => setShowMore(false)}
-            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px]"
+            className="fixed inset-0 z-40 bg-black/30"
           />
         )}
       </AnimatePresence>
@@ -138,13 +138,13 @@ export function BottomNav() {
         )}
       </AnimatePresence>
 
-      {/* Main nav pill */}
-      <div className="fixed bottom-5 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-[400px] z-50">
+      {/* Main nav pill and standalone More button */}
+      <div className="fixed bottom-5 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-[400px] z-50 flex items-center gap-3">
         <motion.div
           initial={{ y: 80, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3, ...springConfig }}
-          className="glass-card rounded-full p-2 flex items-center justify-between"
+          className="glass-card rounded-full p-2 flex items-center justify-between flex-1"
         >
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -154,7 +154,6 @@ export function BottomNav() {
               <Link key={tab.href} href={tab.href} className="flex-1">
                 <motion.div
                   whileTap={{ scale: 0.88 }}
-                  transition={{ type: "spring", stiffness: 600, damping: 30 }}
                   className={`relative flex items-center justify-center h-13 rounded-full transition-colors ${
                     isActive ? "text-[#3B5BDB]" : "text-black/35 hover:text-black/60"
                   }`}
@@ -181,33 +180,36 @@ export function BottomNav() {
             );
           })}
 
-          {/* More button */}
-          <motion.button
-            whileTap={{ scale: 0.88 }}
-            transition={{ type: "spring", stiffness: 600, damping: 30 }}
-            onClick={() => setShowMore(!showMore)}
-            className={`flex-1 relative flex items-center justify-center h-13 rounded-full transition-colors ${
-              showMore || allMoreActive ? "text-[#3B5BDB]" : "text-black/35 hover:text-black/60"
-            }`}
-          >
-            {(showMore || allMoreActive) && (
-              <motion.div
-                layoutId="activeTabBg"
-                className="absolute inset-0 rounded-full bg-[#3B5BDB]/10 border border-[#3B5BDB]/15"
-                transition={springConfig}
-              />
-            )}
-            <div className="relative z-10 flex flex-col items-center gap-0.5">
-              <motion.div
-                animate={{ rotate: showMore ? 180 : 0 }}
-                transition={springConfig}
-              >
-                <ChevronUp className="w-6 h-6" />
-              </motion.div>
-              <span className="text-[10px] font-bold leading-none">More</span>
-            </div>
-          </motion.button>
         </motion.div>
+
+        {/* Standalone More button */}
+        <motion.button
+          initial={{ y: 80, opacity: 0, scale: 0.8 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4, ...springConfig }}
+          whileTap={{ scale: 0.88 }}
+          onClick={() => setShowMore(!showMore)}
+          className={`glass-card relative flex flex-col items-center justify-center w-[68px] h-[68px] rounded-full transition-colors flex-shrink-0 shadow-lg border border-white/40 ${
+            showMore || allMoreActive ? "text-[#3B5BDB] bg-white/90" : "text-black/40 hover:text-black/70 bg-white/50"
+          }`}
+        >
+          {(showMore || allMoreActive) && (
+            <motion.div
+              layoutId="activeTabBg"
+              className="absolute inset-0 rounded-full bg-[#3B5BDB]/10 border border-[#3B5BDB]/15"
+              transition={springConfig}
+            />
+          )}
+          <div className="relative z-10 flex flex-col items-center gap-0.5 mt-0.5">
+            <motion.div
+              animate={{ rotate: showMore ? 180 : 0, scale: showMore ? 1.1 : 1 }}
+              transition={springConfig}
+            >
+              {showMore ? <X className="w-6 h-6" /> : <AlignRight className="w-6 h-6" />}
+            </motion.div>
+            <span className="text-[10px] font-bold leading-none mt-1">More</span>
+          </div>
+        </motion.button>
       </div>
     </>
   );

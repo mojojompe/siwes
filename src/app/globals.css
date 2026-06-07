@@ -49,16 +49,17 @@ html, body {
 /* Glass card utility */
 .glass-card {
   background: var(--card);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--card-border);
   box-shadow: var(--shadow-card);
-  transition: box-shadow 200ms ease-out, transform 200ms ease-out;
+  transition: box-shadow 200ms ease-out;
+  transform: translateZ(0);
+  will-change: transform, backdrop-filter;
 }
 
 .glass-card:hover {
   box-shadow: var(--shadow-card-hover);
-  transform: scale(1.005);
 }
 
 /* Premium button base */

@@ -5,6 +5,7 @@ import { Sparkles, Image as ImageIcon, MessageSquare, CheckCircle, X, Crown, Loa
 import { usePaystackPayment } from "react-paystack";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface ProModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface ProModalProps {
 export function ProModal({ isOpen, onClose, userEmail }: ProModalProps) {
   const [verifying, setVerifying] = useState(false);
   const router = useRouter();
+  const { update } = useSession();
 
   const config = {
     reference: (new Date()).getTime().toString() + Math.random().toString(36).substring(7),
@@ -35,7 +37,8 @@ export function ProModal({ isOpen, onClose, userEmail }: ProModalProps) {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        // Force session refresh or reload
+        // Force NextAuth session refresh locally so the new token reflects isPro: true immediately
+        await update({ isPro: true });
         window.location.reload();
       } else {
         alert("Payment verification failed. Please contact support.");
