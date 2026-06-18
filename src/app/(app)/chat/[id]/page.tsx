@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Send, Bot, User, Loader2, ArrowLeft, Mic, FileText, CalendarPlus, Sparkles } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Send, Bot, User, Loader2, ArrowLeft, Mic, MicOff, FileText, CalendarPlus, Sparkles } from "lucide-react";
+import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 interface Message {
@@ -12,34 +11,89 @@ interface Message {
   content: string;
 }
 
-const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
-
-export default function ChatSessionPage({ params }: { params: { id: string } }) {
+export default function ChatSessionPage() {
   const router = useRouter();
+  const params = useParams();
+  const chatId = params?.id as string;
   const { data: session } = useSession();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
     if (session?.user) {
       if (!(session.user as any).isPro) {
         router.push("/chat");
-      } else {
+      } else if (chatId) {
         fetchHistory();
       }
     }
-  }, [session]);
+  }, [session, chatId]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, sending]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        
+        recognition.onresult = (event: any) => {
+          let currentTranscript = "";
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            currentTranscript += event.results[i][0].transcript;
+          }
+          setInput((prev) => {
+            // Very simple approach to appending transcribed text
+            const base = prev.replace(/ \((listening...)\)$/, "");
+            return base + " " + currentTranscript;
+          });
+        };
+        
+        recognition.onerror = (event: any) => {
+          console.error("Speech recognition error", event.error);
+          setIsListening(false);
+        };
+        
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+
+        recognitionRef.current = recognition;
+      }
+    }
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+    } else {
+      if (recognitionRef.current) {
+        recognitionRef.current.start();
+        setIsListening(true);
+      } else {
+        alert("Speech recognition is not supported in this browser.");
+      }
+    }
+  };
+
   const fetchHistory = async () => {
     try {
-      const res = await fetch(`/api/ai/chat/${params.id}`);
+      const res = await fetch(`/api/ai/chat/${chatId}`);
       if (res.ok) {
         const data = await res.json();
         setMessages(data.messages || []);
@@ -54,6 +108,10 @@ export default function ChatSessionPage({ params }: { params: { id: string } }) 
   const handleSend = async (textToSend: string, action?: string) => {
     if (!textToSend.trim() || sending) return;
 
+    if (isListening) {
+      toggleListening();
+    }
+
     setInput("");
     setSending(true);
 
@@ -61,7 +119,7 @@ export default function ChatSessionPage({ params }: { params: { id: string } }) 
     setMessages(newMessages);
 
     try {
-      const res = await fetch(`/api/ai/chat/${params.id}`, {
+      const res = await fetch(`/api/ai/chat/${chatId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: textToSend, action })
@@ -109,94 +167,116 @@ export default function ChatSessionPage({ params }: { params: { id: string } }) 
     }
   };
 
-  if (loading) return <main className="flex-1 flex items-center justify-center min-h-screen mesh-bg"><Loader2 className="w-8 h-8 text-[#3B5BDB] animate-spin" /></main>;
+  if (loading) return <main className="flex-1 flex items-center justify-center min-h-screen bg-white"><Loader2 className="w-8 h-8 text-[#10a37f] animate-spin" /></main>;
 
   return (
-    <main className="flex flex-col min-h-screen bg-grid relative">
-      <motion.header initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="sticky top-0 z-[60] pt-5 pb-4 px-5 glass-card rounded-b-[1.5rem] flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.push("/chat")} className="w-10 h-10 rounded-full bg-black/5 flex items-center justify-center text-black/40 hover:bg-black/10 transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="heading-display text-[20px] text-[#1A1A2E] leading-none">AI Assistant</h1>
-            <p className="text-[12px] font-medium text-black/40 mt-1">Context Aware AI</p>
-          </div>
-        </div>
-      </motion.header>
+    <main className="flex flex-col min-h-[100dvh] bg-white">
+      {/* Header */}
+      <header className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200">
+        <button onClick={() => router.push("/chat")} className="w-10 h-10 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded-full transition-colors">
+          <ArrowLeft className="w-5 h-5" />
+        </button>
+        <h1 className="text-lg font-semibold text-gray-800">AI Assistant</h1>
+      </header>
 
-      <div className="flex-1 overflow-y-auto px-5 py-6 pb-32 space-y-4">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto pb-40">
         {messages.length === 0 && (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center pt-20">
-            <div className="w-20 h-20 rounded-[2rem] bg-indigo-50 border border-indigo-100 flex items-center justify-center mx-auto mb-5 shadow-inner">
-              <Bot className="w-10 h-10 text-[#3B5BDB]" />
+          <div className="flex flex-col items-center justify-center h-full pt-20 px-4 text-center">
+            <div className="w-16 h-16 bg-[#10a37f]/10 rounded-full flex items-center justify-center mb-6">
+              <Bot className="w-8 h-8 text-[#10a37f]" />
             </div>
-            <h2 className="heading-display text-[22px] text-[#1A1A2E] mb-2">How can I help?</h2>
-            <p className="text-[14px] text-black/50 font-medium max-w-[260px] mx-auto leading-relaxed mb-6">
-              Ask me to brainstorm logbook entries, organize tasks, or explain university concepts.
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">How can I help you today?</h2>
+            <p className="text-gray-500 mb-8 max-w-sm">
+              I can help you brainstorm logbook entries, organize tasks, or explain university concepts.
             </p>
-
             <button 
               onClick={() => handleSend("Summarize my recent logs", "summarize-logs")}
-              className="px-4 py-2 bg-white/60 border border-black/10 rounded-full text-[13px] font-bold text-[#3B5BDB] shadow-sm hover:bg-white transition-colors flex items-center gap-2 mx-auto"
+              className="px-5 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors flex items-center gap-2"
             >
-              <Sparkles className="w-4 h-4" /> Summarize my recent logs
+              <Sparkles className="w-4 h-4 text-[#10a37f]" /> Summarize my recent logs
             </button>
-          </motion.div>
+          </div>
         )}
 
-        <AnimatePresence initial={false}>
-          {messages.map((msg, i) => (
-            <motion.div key={msg._id || i} initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className={`flex flex-col gap-1 max-w-[85%] ${msg.role === "user" ? "ml-auto items-end" : "mr-auto items-start"}`}>
-              <div className={`flex gap-3 w-full ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-auto shadow-sm ${msg.role === "user" ? "bg-[#1A1A2E]" : "bg-indigo-100"}`}>
-                  {msg.role === "user" ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-[#3B5BDB]" />}
-                </div>
-                <div className={`p-4 rounded-[1.25rem] ${msg.role === "user" ? "bg-[#1A1A2E] text-white rounded-br-sm shadow-md" : "glass-card text-[#1A1A2E] rounded-bl-sm border border-black/5"}`}>
-                  <p className={`text-[14px] font-medium leading-relaxed whitespace-pre-wrap ${msg.role === "user" ? "" : "opacity-90"}`}>{msg.content}</p>
-                </div>
+        {messages.map((msg, i) => (
+          <div key={msg._id || i} className={`w-full py-6 px-4 ${msg.role === "model" ? "bg-gray-50 border-y border-gray-100" : "bg-white"}`}>
+            <div className="max-w-3xl mx-auto flex gap-4 md:gap-6">
+              <div className="w-8 h-8 rounded-sm flex-shrink-0 flex items-center justify-center mt-1">
+                {msg.role === "user" ? (
+                  <div className="w-8 h-8 rounded-sm bg-gray-800 flex items-center justify-center"><User className="w-5 h-5 text-white" /></div>
+                ) : (
+                  <div className="w-8 h-8 rounded-sm bg-[#10a37f] flex items-center justify-center"><Bot className="w-5 h-5 text-white" /></div>
+                )}
               </div>
-              
-              {/* Export Buttons for AI Model Responses */}
-              {msg.role === "model" && (
-                <div className="flex gap-2 pl-11 mt-1 opacity-0 hover:opacity-100 transition-opacity" style={{ opacity: 1 }}> {/* Forced visible for demo */}
-                  <button onClick={() => exportToNote(msg.content)} className="text-[10px] font-bold text-black/40 hover:text-[#3B5BDB] flex items-center gap-1 bg-white/50 px-2 py-1 rounded-md border border-black/5">
-                    <FileText className="w-3 h-3" /> Export to Note
-                  </button>
-                  <button onClick={() => exportToLog(msg.content)} className="text-[10px] font-bold text-black/40 hover:text-[#3B5BDB] flex items-center gap-1 bg-white/50 px-2 py-1 rounded-md border border-black/5">
-                    <CalendarPlus className="w-3 h-3" /> Export to Log
-                  </button>
-                </div>
-              )}
-            </motion.div>
-          ))}
+              <div className="flex-1 space-y-2 overflow-hidden">
+                <p className="text-gray-800 text-[15px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                {msg.role === "model" && (
+                  <div className="flex gap-2 pt-2">
+                    <button onClick={() => exportToNote(msg.content)} className="text-xs font-medium text-gray-500 hover:text-gray-800 flex items-center gap-1">
+                      <FileText className="w-3 h-3" /> Note
+                    </button>
+                    <button onClick={() => exportToLog(msg.content)} className="text-xs font-medium text-gray-500 hover:text-gray-800 flex items-center gap-1">
+                      <CalendarPlus className="w-3 h-3" /> Log
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
 
-          {sending && (
-             <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="flex gap-3 max-w-[85%] mr-auto">
-               <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-auto bg-indigo-100 shadow-sm"><Bot className="w-4 h-4 text-[#3B5BDB]" /></div>
-               <div className="p-4 rounded-[1.25rem] glass-card text-[#1A1A2E] rounded-bl-sm border border-black/5 flex items-center gap-1.5 h-12">
-                 <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0 }} className="w-1.5 h-1.5 rounded-full bg-black/20" />
-                 <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 rounded-full bg-black/20" />
-                 <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-1.5 h-1.5 rounded-full bg-black/20" />
-               </div>
-             </motion.div>
-          )}
-        </AnimatePresence>
-        <div ref={bottomRef} className="h-4" />
+        {sending && (
+          <div className="w-full py-6 px-4 bg-gray-50 border-y border-gray-100">
+            <div className="max-w-3xl mx-auto flex gap-4 md:gap-6">
+              <div className="w-8 h-8 rounded-sm bg-[#10a37f] flex-shrink-0 flex items-center justify-center mt-1">
+                <Bot className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1 flex items-center">
+                <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+              </div>
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef} className="h-10" />
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 p-4 pb-28 bg-gradient-to-t from-[#fafafa] via-[#fafafa]/80 to-transparent pointer-events-none z-50">
-        <form onSubmit={(e) => { e.preventDefault(); handleSend(input); }} className="relative max-w-lg mx-auto pointer-events-auto flex gap-2">
-          <button type="button" onClick={() => alert("Speech recognition initializing...")} className="w-14 h-14 rounded-full bg-white text-black/40 flex items-center justify-center hover:text-[#3B5BDB] shadow-md border border-black/5 transition-colors flex-shrink-0">
-            <Mic className="w-5 h-5" />
-          </button>
-          <div className="relative flex-1">
-            <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Message AI..." disabled={sending} className="w-full pl-5 pr-14 h-14 glass-card bg-white/80 rounded-[2rem] text-[15px] font-medium text-[#1A1A2E] placeholder:text-black/30 shadow-md border border-black/5 focus:outline-none focus:ring-2 focus:ring-[#3B5BDB]/20" />
-            <motion.button whileTap={{ scale: 0.9 }} type="submit" disabled={!input.trim() || sending} className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#3B5BDB] text-white flex items-center justify-center disabled:opacity-50 transition-colors shadow-sm">
-              <Send className="w-4 h-4 ml-0.5" />
-            </motion.button>
+      {/* Input Form */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white/90 to-transparent">
+        <form onSubmit={(e) => { e.preventDefault(); handleSend(input); }} className="max-w-3xl mx-auto relative flex items-end gap-2 bg-white border border-gray-300 rounded-2xl shadow-sm focus-within:ring-1 focus-within:ring-gray-300 overflow-hidden pr-2">
+          <textarea 
+            value={input} 
+            onChange={(e) => setInput(e.target.value)} 
+            placeholder="Message AI Assistant..." 
+            disabled={sending}
+            rows={1}
+            className="w-full max-h-32 min-h-[56px] py-4 pl-4 bg-transparent text-[15px] text-gray-800 placeholder:text-gray-400 resize-none focus:outline-none disabled:opacity-50"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend(input);
+              }
+            }}
+          />
+          <div className="flex items-center gap-1 pb-2">
+            <button 
+              type="button" 
+              onClick={toggleListening} 
+              className={`p-2 rounded-lg transition-colors ${isListening ? "text-red-500 bg-red-50 hover:bg-red-100" : "text-gray-400 hover:bg-gray-100"}`}
+              title={isListening ? "Stop listening" : "Start Voice to Text"}
+            >
+              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            </button>
+            <button 
+              type="submit" 
+              disabled={!input.trim() || sending} 
+              className="p-2 bg-[#10a37f] text-white rounded-lg disabled:opacity-50 disabled:bg-gray-200 disabled:text-gray-400 hover:bg-[#0e906f] transition-colors"
+            >
+              <Send className="w-5 h-5" />
+            </button>
           </div>
         </form>
+        <p className="text-center text-xs text-gray-400 mt-2">AI can make mistakes. Consider verifying important information.</p>
       </div>
     </main>
   );

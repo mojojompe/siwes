@@ -98,7 +98,7 @@ html, body {
   box-shadow: 0 0 0 3px rgba(59, 91, 219, 0.12), inset 0 1px 3px rgba(0,0,0,0.04);
 }
 
-/* Claymorphic floating animation */
+/* Claymorphic floating animation (Disabled for performance) */
 @keyframes clay-float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   33% { transform: translateY(-8px) rotate(1deg); }
@@ -110,17 +110,17 @@ html, body {
   50% { transform: scale(1.02); opacity: 1; }
 }
 
-.clay-float { animation: clay-float 6s ease-in-out infinite; }
-.clay-float-delay { animation: clay-float 6s ease-in-out infinite 2s; }
-.clay-pulse { animation: clay-pulse 4s ease-in-out infinite; }
+.clay-float { /* animation: clay-float 6s ease-in-out infinite; */ }
+.clay-float-delay { /* animation: clay-float 6s ease-in-out infinite 2s; */ }
+.clay-pulse { /* animation: clay-pulse 4s ease-in-out infinite; */ }
 
-/* Halo ring animation */
+/* Halo ring animation (Disabled for performance) */
 @keyframes halo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-.halo-ring { animation: halo-spin 8s linear infinite; }
+.halo-ring { /* animation: halo-spin 8s linear infinite; */ }
 
 /* Shake animation for errors */
 @keyframes shake {

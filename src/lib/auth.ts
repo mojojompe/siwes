@@ -54,15 +54,16 @@ export const authOptions: NextAuthOptions = {
         token.email = (user as any).email;
       }
       
-      // Handle session updates (e.g. from disclaimer page)
-      if (trigger === "update" && session?.user) {
-        token.firstName = session.user.firstName ?? token.firstName;
-        token.lastName = session.user.lastName ?? token.lastName;
-        token.department = session.user.department ?? token.department;
-        token.matricNumber = session.user.matricNumber ?? token.matricNumber;
-        token.hasReadDisclaimer = session.user.hasReadDisclaimer ?? token.hasReadDisclaimer;
-        token.isPro = session.user.isPro ?? token.isPro;
-        token.email = session.user.email ?? token.email;
+      // Handle session updates (e.g. from disclaimer page or pro upgrade)
+      if (trigger === "update" && session) {
+        const updateData = session.user || session;
+        token.firstName = updateData.firstName ?? token.firstName;
+        token.lastName = updateData.lastName ?? token.lastName;
+        token.department = updateData.department ?? token.department;
+        token.matricNumber = updateData.matricNumber ?? token.matricNumber;
+        token.hasReadDisclaimer = updateData.hasReadDisclaimer ?? token.hasReadDisclaimer;
+        token.isPro = updateData.isPro ?? token.isPro;
+        token.email = updateData.email ?? token.email;
       }
       
       return token;

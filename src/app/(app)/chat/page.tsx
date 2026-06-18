@@ -14,7 +14,7 @@ interface ChatSession {
   updatedAt: string;
 }
 
-const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
+const spring = { duration: 0.2 };
 
 export default function ChatHistoryPage() {
   const router = useRouter();
