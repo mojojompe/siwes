@@ -6,6 +6,8 @@ import { Chat } from "@/models/Chat";
 import { rateLimit } from "@/lib/rateLimit";
 import { sanitize } from "@/lib/sanitize";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);

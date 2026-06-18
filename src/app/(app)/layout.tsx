@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { Skeleton } from "@/components/Skeleton";
@@ -10,6 +10,7 @@ import { SyncManager } from "@/components/SyncManager";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -17,11 +18,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [status, router]);
 
+  const isChatSessionPage = pathname?.match(/^\/chat\/[a-zA-Z0-9_-]+$/);
+
   if (status === "loading") {
     return (
-      <div className="flex flex-col min-h-screen pb-24">
+      <div className={`flex flex-col min-h-screen ${isChatSessionPage ? "" : "pb-24"}`}>
         <Skeleton />
-        <BottomNav />
+        {!isChatSessionPage && <BottomNav />}
       </div>
     );
   }
@@ -29,10 +32,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (status === "unauthenticated") return null;
 
   return (
-    <div className="flex flex-col min-h-screen pb-24 relative">
+    <div className={`flex flex-col min-h-screen relative ${isChatSessionPage ? "" : "pb-24"}`}>
       <SyncManager />
       {children}
-      <BottomNav />
+      {!isChatSessionPage && <BottomNav />}
     </div>
   );
 }

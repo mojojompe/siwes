@@ -30,11 +30,25 @@ export default function ChatHistoryPage() {
     } else if (session?.user) {
       fetchChats();
     }
+
+    const handleFocus = () => {
+      if (document.visibilityState === "visible" && session?.user && (session.user as any).isPro) {
+        fetchChats();
+      }
+    };
+    
+    document.addEventListener("visibilitychange", handleFocus);
+    window.addEventListener("focus", handleFocus);
+    
+    return () => {
+      document.removeEventListener("visibilitychange", handleFocus);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, [session]);
 
   const fetchChats = async () => {
     try {
-      const res = await fetch("/api/ai/chat");
+      const res = await fetch("/api/ai/chat", { cache: "no-store" });
       if (res.ok) {
         const data = await res.json();
         setChats(data.chats || []);

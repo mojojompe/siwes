@@ -53,7 +53,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.5-flash",
+      systemInstruction: "You are a helpful, friendly, and concise AI assistant for a university student undergoing their SIWES (industrial training). Help them brainstorm daily logs, organize tasks, explain concepts, and provide general productivity advice. Keep responses clear and well-structured, using markdown formatting when helpful."
+    });
 
     let finalPrompt = text;
 
@@ -74,7 +77,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     const chatSession = model.startChat({
       history,
-      systemInstruction: "You are a helpful, friendly, and concise AI assistant for a university student undergoing their SIWES (industrial training). Help them brainstorm daily logs, organize tasks, explain concepts, and provide general productivity advice. Keep responses clear and well-structured, using markdown formatting when helpful.",
     });
 
     const result = await chatSession.sendMessage(finalPrompt);
@@ -82,6 +84,21 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     // Save Model Message
     chat.messages.push({ role: "model", content: responseText });
+
+    // Generate a title if this is the first message exchange (history was empty)
+    if (history.length === 0) {
+      try {
+        const titlePrompt = `Generate a very short 3-5 word title summarizing this user request: "${finalPrompt}". Respond ONLY with the title, no quotes, no extra text.`;
+        const titleResult = await model.generateContent(titlePrompt);
+        const generatedTitle = titleResult.response.text().trim().replace(/['"]+/g, '');
+        if (generatedTitle) {
+          chat.title = generatedTitle;
+        }
+      } catch (titleErr) {
+        console.error("Failed to generate title:", titleErr);
+      }
+    }
+
     await chat.save();
 
     return NextResponse.json({ response: responseText });
