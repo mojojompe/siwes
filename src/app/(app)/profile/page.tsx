@@ -153,13 +153,7 @@ export default function ProfilePage() {
           Log Out
         </motion.button>
 
-        {/* Sponsor */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
-          className="text-center pt-4 pb-2 relative z-10">
-          <p className="text-[11px] font-bold text-black/25 uppercase tracking-[0.18em]">
-            Sponsored by <span className="text-[#3B5BDB]/60">Waltik Labs</span>
-          </p>
-        </motion.div>
+        {/* Sponsor block moved to global layout */}
       </div>
 
       {/* Coming Soon Drawer */}

@@ -121,7 +121,7 @@ export default function SignupPage() {
         transition={{ delay: 1 }}
         className="absolute bottom-6 left-0 right-0 text-center text-[11px] font-bold tracking-[0.18em] uppercase text-black/25"
       >
-        Sponsored by Waltik Labs
+        Sponsored by <a href="https://waltiklabs.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:text-[#3B5BDB] transition-colors">Waltik Labs</a>
       </motion.p>
 
       {/* Card */}
