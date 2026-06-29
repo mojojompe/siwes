@@ -18,6 +18,15 @@ interface Notification {
 
 const STATIC_UPDATES: Notification[] = [
   {
+    _id: "static-update-ilesure",
+    title: "Join the iléSure Waitlist! 🏡",
+    message: `Be among the first to experience a smarter way to discover and secure housing.\n\nAs a waitlist member, you'll receive:\n• Early access to the platform\n• Exclusive product updates\n• Priority notifications\n\nTogether, we're building a future where finding a home is simpler, safer, and built on trust.\n\nVisit our Website: https://ilesure.com\nOR\nJoin Now and be a part of that future: https://ilesure.com/discover\n\n*iléSure*\n_Your Sure Home Anywhere_ 🏡`,
+    isRead: false,
+    type: "alarm",
+    actionLink: "https://ilesure.com/discover",
+    createdAt: new Date().toISOString()
+  },
+  {
     _id: "static-update-pro-live",
     title: "SIWES Tracker Pro is Live! 👑",
     message: "Unlock Premium features including Media Uploads, unlimited Context-Aware AI Chat, and the AI log rephraser! Tap Profile to upgrade.",
@@ -108,6 +117,33 @@ export default function NotificationsPage() {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         setNotifications(merged);
+
+        // SYSTEM LEVEL PUSH NOTIFICATION
+        const hasPushedIlesure = localStorage.getItem("pushed_ilesure");
+        if (!hasPushedIlesure && !readStaticIds.includes("static-update-ilesure")) {
+          if ("Notification" in window) {
+            const sendPush = () => {
+              const notif = new Notification("iléSure Waitlist is Open! 🏡", {
+                body: "Experience a smarter way to discover and secure housing. Join now for early access!",
+                icon: "/icon.png"
+              });
+              notif.onclick = () => {
+                window.open("https://ilesure.com/discover", "_blank");
+              };
+              localStorage.setItem("pushed_ilesure", "true");
+            };
+
+            if (Notification.permission === "granted") {
+              sendPush();
+            } else if (Notification.permission !== "denied") {
+              Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                  sendPush();
+                }
+              });
+            }
+          }
+        }
       }
     } catch (err) {
       console.error(err);
@@ -159,8 +195,12 @@ export default function NotificationsPage() {
       setSelectedNotif(null);
       return;
     }
-    // Route to action link
-    router.push(selectedNotif.actionLink);
+    // Check if it's an external link
+    if (selectedNotif.actionLink.startsWith("http")) {
+      window.open(selectedNotif.actionLink, "_blank");
+    } else {
+      router.push(selectedNotif.actionLink);
+    }
     setSelectedNotif(null);
   };
 
@@ -228,7 +268,7 @@ export default function NotificationsPage() {
                 </div>
                 <div className="flex-1 pr-4">
                   <h3 className={`text-[15px] font-bold ${notif.isRead ? 'text-[#1A1A2E]/70' : 'text-[#1A1A2E]'}`}>{notif.title}</h3>
-                  <p className="text-[13px] text-black/50 line-clamp-1 mt-0.5">{notif.message}</p>
+                  <p className="text-[13px] text-black/50 line-clamp-2 mt-0.5 whitespace-pre-wrap">{notif.message}</p>
                   <p className="text-[10px] text-black/30 font-bold uppercase tracking-wider mt-2">
                     {new Date(notif.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </p>
@@ -253,7 +293,7 @@ export default function NotificationsPage() {
                 {getIcon(selectedNotif.type)}
               </div>
               <h2 className="heading-display text-[22px] text-[#1A1A2E] mb-3 leading-tight">{selectedNotif.title}</h2>
-              <p className="text-[15px] text-black/60 font-medium leading-relaxed mb-8">
+              <p className="text-[15px] text-black/60 font-medium leading-relaxed mb-8 whitespace-pre-wrap">
                 {selectedNotif.message}
               </p>
               
