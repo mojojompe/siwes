@@ -62,11 +62,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
               </h1>
             </div>
 
-            {/* Sponsor */}
-            <div ref={sponsorRef} className="absolute bottom-10 flex flex-col items-center opacity-0">
-              <span className="text-xs font-medium tracking-[0.2em] text-black/30 uppercase">Sponsored by</span>
-              <a href="https://waltiklabs.vercel.app" target="_blank" rel="noopener noreferrer" className="text-base font-bold text-black/50 mt-0.5 hover:text-[#3B5BDB] transition-colors">Waltik Labs</a>
-            </div>
           </motion.div>
         ) : (
           <motion.div

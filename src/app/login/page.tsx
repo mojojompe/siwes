@@ -41,15 +41,6 @@ export default function LoginPage() {
 
   return (
     <main className="flex-1 min-h-screen relative flex flex-col items-center justify-center p-5 overflow-hidden mesh-bg">
-      {/* "Sponsored by Waltik Labs" on background */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="absolute bottom-6 left-0 right-0 text-center text-[11px] font-bold tracking-[0.18em] uppercase text-black/25"
-      >
-        Sponsored by <a href="https://waltiklabs.vercel.app" target="_blank" rel="noopener noreferrer" className="hover:text-[#3B5BDB] transition-colors">Waltik Labs</a>
-      </motion.p>
 
       {/* Card */}
       <motion.div

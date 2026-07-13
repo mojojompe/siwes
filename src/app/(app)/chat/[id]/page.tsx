@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Send, Bot, User, Loader2, ArrowLeft, Mic, MicOff, FileText, CalendarPlus, Sparkles } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import ReactMarkdown from "react-markdown";
 
 interface Message {
   _id?: string;
@@ -217,7 +218,9 @@ export default function ChatSessionPage() {
                   {msg.role === "user" ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-[#3B5BDB]" />}
                 </div>
                 <div className={`p-4 rounded-[1.25rem] ${msg.role === "user" ? "bg-[#1A1A2E] text-white rounded-br-sm shadow-md" : "glass-card text-[#1A1A2E] rounded-bl-sm border border-black/5"}`}>
-                  <p className={`text-[14px] font-medium leading-relaxed whitespace-pre-wrap ${msg.role === "user" ? "" : "opacity-90"}`}>{msg.content}</p>
+                  <div className={`text-[14px] font-medium leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none ${msg.role === "user" ? "" : "opacity-90 prose-p:my-1 prose-ul:my-1 prose-ol:my-1"}`}>
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
                 </div>
               </div>
               

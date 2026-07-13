@@ -27,6 +27,8 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
   
+  const [currentWeekIndex, setCurrentWeekIndex] = useState(0);
+  
   const [showAdd, setShowAdd] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   
@@ -342,14 +344,14 @@ export default function HomePage() {
                   <p className="text-[12px] text-black/30 mt-1">Tap the button below to add your first entry.</p>
                 </div>
               ) : (
-                sortedWeeks.map((week, idx) => (
-                  <motion.section key={week} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1, ...spring }} className="space-y-3 mb-6">
+                <div className="space-y-3 mb-6">
+                  <motion.section key={sortedWeeks[currentWeekIndex]} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={spring} className="space-y-3">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="h-px flex-1 bg-black/5" />
-                      <span className="text-[11px] font-bold text-black/30 uppercase tracking-widest px-2">Week {week}</span>
+                      <span className="text-[11px] font-bold text-black/30 uppercase tracking-widest px-2">Week {sortedWeeks[currentWeekIndex]}</span>
                       <div className="h-px flex-1 bg-black/5" />
                     </div>
-                    {groupedLogs[week].map((log, i) => (
+                    {groupedLogs[sortedWeeks[currentWeekIndex]].map((log, i) => (
                       <motion.div key={log._id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05, ...spring }} onClick={() => openEdit(log)} className="glass-card rounded-[1.5rem] p-5 relative overflow-hidden group cursor-pointer hover:bg-black/5 transition-colors">
                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={(e) => { e.stopPropagation(); openEdit(log); }} className="p-1.5 bg-white/70 backdrop-blur-sm text-black/40 hover:text-[#3B5BDB] rounded-lg transition-colors"><Edit3 className="w-3.5 h-3.5" /></button>
@@ -379,7 +381,32 @@ export default function HomePage() {
                       </motion.div>
                     ))}
                   </motion.section>
-                ))
+                  
+                  {/* Pagination Controls */}
+                  {sortedWeeks.length > 1 && (
+                    <div className="flex items-center justify-between mt-6 glass-card rounded-[1.25rem] p-3 shadow-sm border border-black/5">
+                      <button
+                        onClick={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
+                        disabled={currentWeekIndex === 0}
+                        className="px-4 py-2 text-[13px] font-bold text-[#3B5BDB] disabled:text-black/20 hover:bg-[#3B5BDB]/10 rounded-lg transition-colors flex items-center gap-1"
+                      >
+                        <ChevronDown className="w-4 h-4 rotate-90" /> Newer
+                      </button>
+                      
+                      <span className="text-[12px] font-medium text-black/40 mono">
+                        {currentWeekIndex + 1} of {sortedWeeks.length}
+                      </span>
+                      
+                      <button
+                        onClick={() => setCurrentWeekIndex(prev => Math.min(sortedWeeks.length - 1, prev + 1))}
+                        disabled={currentWeekIndex === sortedWeeks.length - 1}
+                        className="px-4 py-2 text-[13px] font-bold text-[#3B5BDB] disabled:text-black/20 hover:bg-[#3B5BDB]/10 rounded-lg transition-colors flex items-center gap-1"
+                      >
+                        Older <ChevronDown className="w-4 h-4 -rotate-90" />
+                      </button>
+                    </div>
+                  )}
+                </div>
               )}
             </motion.div>
           )}

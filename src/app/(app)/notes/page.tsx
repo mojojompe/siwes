@@ -33,6 +33,7 @@ export default function NotesPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [viewMode, setViewMode] = useState(false);
 
   useEffect(() => { fetchNotes(); }, []);
 
@@ -72,8 +73,8 @@ export default function NotesPage() {
     catch { fetchNotes(); }
   };
 
-  const openEdit = (note: Note) => { setEditId(note._id); setTitle(note.title); setContent(note.content); setShowModal(true); };
-  const openNew = () => { setEditId(null); setTitle(""); setContent(""); setShowModal(true); };
+  const openEdit = (note: Note) => { setEditId(note._id); setTitle(note.title); setContent(note.content); setViewMode(true); setShowModal(true); };
+  const openNew = () => { setEditId(null); setTitle(""); setContent(""); setViewMode(false); setShowModal(true); };
   const closeModal = () => setShowModal(false);
 
   if (loading) return <Skeleton />;
@@ -147,34 +148,52 @@ export default function NotesPage() {
               className="fixed inset-x-0 bottom-0 z-50 glass-card rounded-t-[2rem] flex flex-col max-h-[90vh]"
             >
               <div className="flex items-center justify-between p-5 border-b border-black/5 flex-shrink-0">
-                <h3 className="heading-display text-[18px]">{editId ? "Edit Note" : "New Note"}</h3>
-                <motion.button whileTap={{ scale: 0.85 }} onClick={closeModal}
-                  className="w-8 h-8 rounded-full bg-black/6 flex items-center justify-center text-black/40">
-                  <X className="w-4 h-4" />
-                </motion.button>
-              </div>
-              <form onSubmit={handleSave} className="flex flex-col flex-1 overflow-hidden">
-                <div className="p-5 flex flex-col gap-4 overflow-y-auto flex-1">
-                  <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Note title..."
-                    className="w-full px-4 py-3.5 input-premium text-[15px] font-700" />
-                  <textarea required value={content} onChange={(e) => setContent(e.target.value)}
-                    placeholder="Write your thoughts..."
-                    className="w-full flex-1 min-h-[200px] px-4 py-3.5 input-premium text-[14px] font-medium resize-none leading-relaxed" />
-                </div>
-                <div className="p-5 pb-28 border-t border-black/5 flex-shrink-0 flex gap-3">
-                  {editId && (
-                    <motion.button type="button" whileTap={{ scale: 0.97 }} onClick={() => { deleteNote(editId); closeModal(); }}
-                      className="py-4 px-5 bg-red-50 text-red-600 rounded-xl font-bold flex items-center justify-center">
-                      <Trash2 className="w-5 h-5" />
+                <h3 className="heading-display text-[18px]">
+                  {viewMode ? "Note" : editId ? "Edit Note" : "New Note"}
+                </h3>
+                <div className="flex gap-2">
+                  {viewMode && (
+                    <motion.button whileTap={{ scale: 0.85 }} onClick={() => setViewMode(false)}
+                      className="w-8 h-8 rounded-full bg-[#3B5BDB]/10 flex items-center justify-center text-[#3B5BDB]">
+                      <Edit3 className="w-4 h-4" />
                     </motion.button>
                   )}
-                  <motion.button type="submit" disabled={saving} whileTap={{ scale: 0.97 }}
-                    className="flex-1 py-4 btn-primary rounded-xl font-bold text-[15px] flex items-center justify-center gap-2 disabled:opacity-60">
-                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Note"}
+                  <motion.button whileTap={{ scale: 0.85 }} onClick={closeModal}
+                    className="w-8 h-8 rounded-full bg-black/6 flex items-center justify-center text-black/40">
+                    <X className="w-4 h-4" />
                   </motion.button>
                 </div>
-              </form>
+              </div>
+              
+              {viewMode ? (
+                <div className="p-5 flex flex-col gap-4 overflow-y-auto flex-1 h-[80vh] pb-28">
+                  <h2 className="text-[20px] font-bold text-[#1A1A2E] leading-tight">{title}</h2>
+                  <p className="text-[15px] font-medium text-black/60 leading-relaxed whitespace-pre-wrap">{content}</p>
+                </div>
+              ) : (
+                <form onSubmit={handleSave} className="flex flex-col flex-1 overflow-hidden h-[80vh]">
+                  <div className="p-5 flex flex-col gap-4 overflow-y-auto flex-1">
+                    <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Note title..."
+                      className="w-full px-4 py-3.5 input-premium text-[15px] font-700" />
+                    <textarea required value={content} onChange={(e) => setContent(e.target.value)}
+                      placeholder="Write your thoughts..."
+                      className="w-full flex-1 min-h-[200px] px-4 py-3.5 input-premium text-[14px] font-medium resize-none leading-relaxed" />
+                  </div>
+                  <div className="p-5 pb-28 border-t border-black/5 flex-shrink-0 flex gap-3">
+                    {editId && (
+                      <motion.button type="button" whileTap={{ scale: 0.97 }} onClick={() => { deleteNote(editId); closeModal(); }}
+                        className="py-4 px-5 bg-red-50 text-red-600 rounded-xl font-bold flex items-center justify-center">
+                        <Trash2 className="w-5 h-5" />
+                      </motion.button>
+                    )}
+                    <motion.button type="submit" disabled={saving} whileTap={{ scale: 0.97 }}
+                      className="flex-1 py-4 btn-primary rounded-xl font-bold text-[15px] flex items-center justify-center gap-2 disabled:opacity-60">
+                      {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Note"}
+                    </motion.button>
+                  </div>
+                </form>
+              )}
             </motion.div>
           </>
         )}

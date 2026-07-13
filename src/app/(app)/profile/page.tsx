@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { Footer } from "@/components/Footer";
 import { Settings, Bell, Shield, Hash, BookOpen, ChevronRight, LogOut, X, Info, FileText, Crown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -152,8 +153,10 @@ export default function ProfilePage() {
           <LogOut className="w-5 h-5" />
           Log Out
         </motion.button>
+      </div>
 
-        {/* Sponsor block moved to global layout */}
+      <div className="mt-8">
+        <Footer />
       </div>
 
       {/* Coming Soon Drawer */}
