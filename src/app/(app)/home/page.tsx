@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { ProModal } from "@/components/ProModal";
 import { EmailModal } from "@/components/EmailModal";
 import { RiveEmptyState } from "@/components/RiveEmptyState";
+import ReactMarkdown from "react-markdown";
 
 interface Log { _id: string; date: string; description: string; dayOfWeek: string; weekNumber: number; tags?: string[]; reminder?: string; mediaUrls?: string[]; }
 interface Todo { _id: string; title: string; completed: boolean; date: string; }
@@ -31,6 +32,8 @@ export default function HomePage() {
   
   const [showAdd, setShowAdd] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
@@ -148,6 +151,7 @@ export default function HomePage() {
   const openNew = () => {
     setEditId(null); setDate(new Date().toISOString().split("T")[0]);
     setDescription(""); setTagsStr(""); setReminder(""); setMediaUrls([]);
+    setViewMode(false);
     setShowAdd(true);
     setShowAiTooltip(true);
     setTimeout(() => setShowAiTooltip(false), 3000);
@@ -160,12 +164,13 @@ export default function HomePage() {
     setTagsStr(log.tags?.join(", ") || "");
     setReminder(log.reminder ? new Date(log.reminder).toTimeString().slice(0,5) : "");
     setMediaUrls(log.mediaUrls || []);
+    setViewMode(true);
     setShowAdd(true);
     setShowAiTooltip(true);
     setTimeout(() => setShowAiTooltip(false), 3000);
   };
 
-  const closeSheet = () => { setShowAdd(false); };
+  const closeSheet = () => { setShowAdd(false); setViewMode(false); setDeleteConfirmId(null); };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -424,11 +429,44 @@ export default function HomePage() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeSheet} className="fixed inset-0 z-[90] bg-black/30 backdrop-blur-[2px]" />
             <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={spring} className="fixed bottom-0 left-0 right-0 z-[100] glass-card rounded-t-[2rem] p-6 pb-28 flex flex-col max-h-[90vh]">
               <div className="flex items-center justify-between mb-5 flex-shrink-0">
-                <h3 className="heading-display text-[18px]">{editId ? "Edit Log Entry" : "Add Log Entry"}</h3>
-                <motion.button whileTap={{ scale: 0.85 }} onClick={closeSheet} className="w-8 h-8 rounded-full bg-black/6 flex items-center justify-center text-black/40"><X className="w-4 h-4" /></motion.button>
+                <h3 className="heading-display text-[18px]">
+                  {viewMode ? "Log Entry" : editId ? "Edit Log Entry" : "Add Log Entry"}
+                </h3>
+                <div className="flex gap-2">
+                  {viewMode && (
+                    <motion.button whileTap={{ scale: 0.85 }} onClick={() => setViewMode(false)} className="w-8 h-8 rounded-full bg-[#3B5BDB]/10 flex items-center justify-center text-[#3B5BDB]"><Edit3 className="w-4 h-4" /></motion.button>
+                  )}
+                  <motion.button whileTap={{ scale: 0.85 }} onClick={closeSheet} className="w-8 h-8 rounded-full bg-black/6 flex items-center justify-center text-black/40"><X className="w-4 h-4" /></motion.button>
+                </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto min-h-0">
+              {viewMode ? (
+                <div className="flex-1 overflow-y-auto min-h-0 flex flex-col gap-4">
+                  <div className="text-[13px] font-bold text-black/40 uppercase tracking-widest">{new Date(date).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                  <div className="prose prose-sm max-w-none text-[#1A1A2E] text-[15px] font-medium leading-relaxed prose-p:my-1 prose-ul:my-1 prose-ol:my-1">
+                    <ReactMarkdown>{description}</ReactMarkdown>
+                  </div>
+                  {mediaUrls.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-black/5">
+                      <div className="flex flex-wrap gap-2">
+                        {mediaUrls.map((url, i) => (
+                          <img key={i} src={url} alt="Log attachment" className="w-20 h-20 rounded-xl object-cover border border-black/5" />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {(tagsStr || reminder) && (
+                    <div className="mt-4 pt-4 border-t border-black/5 flex flex-wrap gap-2">
+                      {reminder && <span className="inline-flex items-center gap-1 text-[10px] mono px-2 py-1 bg-amber-50 text-amber-600 rounded border border-amber-100"><Bell className="w-2.5 h-2.5" />{reminder}</span>}
+                      {tagsStr.split(",").map(t => t.trim()).filter(Boolean).map(t => (
+                        <span key={t} className="inline-flex items-center gap-1 text-[10px] mono px-2 py-1 bg-black/5 text-black/50 rounded"><Tag className="w-2.5 h-2.5" /> {t}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <div className="flex-1 overflow-y-auto min-h-0">
                 <form id="logForm" onSubmit={handleSave} className="space-y-4">
                   {error && <div className="p-3 bg-red-50 text-red-600 text-[12px] font-bold rounded-xl border border-red-100">{error}</div>}
                   <div>
@@ -536,32 +574,59 @@ export default function HomePage() {
                     )}
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[11px] font-bold text-black/40 uppercase tracking-wider mb-1.5 ml-1">Tags</label>
-                      <div className="relative">
-                        <Tag className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-black/30" />
-                        <input type="text" value={tagsStr} onChange={(e) => setTagsStr(e.target.value)} placeholder="e.g. coding" className="w-full pl-10 pr-4 py-3.5 input-premium text-[13px] font-medium" />
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[11px] font-bold text-black/40 uppercase tracking-wider mb-1.5 ml-1">Tags</label>
+                        <div className="relative">
+                          <Tag className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-black/30" />
+                          <input type="text" value={tagsStr} onChange={(e) => setTagsStr(e.target.value)} placeholder="e.g. coding" className="w-full pl-10 pr-4 py-3.5 input-premium text-[13px] font-medium" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-black/40 uppercase tracking-wider mb-1.5 ml-1">Reminder</label>
+                        <div className="relative">
+                          <Bell className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-black/30" />
+                          <input type="datetime-local" value={reminder} onChange={(e) => setReminder(e.target.value)} className="w-full pl-10 pr-4 py-3.5 input-premium text-[12px] font-medium mono" />
+                        </div>
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-[11px] font-bold text-black/40 uppercase tracking-wider mb-1.5 ml-1">Reminder</label>
-                      <div className="relative">
-                        <Bell className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-black/30" />
-                        <input type="datetime-local" value={reminder} onChange={(e) => setReminder(e.target.value)} className="w-full pl-10 pr-4 py-3.5 input-premium text-[12px] font-medium mono" />
-                      </div>
-                    </div>
-                  </div>
-                </form>
-              </div>
+                  </form>
+                </div>
 
-              <div className="mt-5 flex gap-3 flex-shrink-0">
-                {editId && (
-                  <motion.button type="button" whileTap={{ scale: 0.97 }} onClick={() => { deleteLog(editId); closeSheet(); }} className="py-4 px-5 bg-red-50 text-red-600 rounded-xl font-bold flex items-center justify-center"><Trash2 className="w-5 h-5" /></motion.button>
-                )}
-                <motion.button form="logForm" type="submit" disabled={saving} whileTap={{ scale: 0.97 }} className="flex-1 py-4 btn-primary rounded-xl font-bold text-[15px] flex items-center justify-center gap-2 disabled:opacity-60">
-                  {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Entry"}
-                </motion.button>
+                <div className="mt-5 flex gap-3 flex-shrink-0">
+                  {editId && (
+                    <motion.button type="button" whileTap={{ scale: 0.97 }} onClick={() => setDeleteConfirmId(editId)} className="py-4 px-5 bg-red-50 text-red-600 rounded-xl font-bold flex items-center justify-center"><Trash2 className="w-5 h-5" /></motion.button>
+                  )}
+                  <motion.button form="logForm" type="submit" disabled={saving} whileTap={{ scale: 0.97 }} className="flex-1 py-4 btn-primary rounded-xl font-bold text-[15px] flex items-center justify-center gap-2 disabled:opacity-60">
+                    {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Entry"}
+                  </motion.button>
+                </div>
+              </>
+              )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Drawer */}
+      <AnimatePresence>
+        {deleteConfirmId && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDeleteConfirmId(null)} className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-[3px]" />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={spring} className="fixed bottom-0 left-0 right-0 z-[120] bg-white rounded-t-[2rem] p-6 pb-28 shadow-[0_-24px_80px_rgba(0,0,0,0.15)]">
+              <div className="flex flex-col items-center text-center pt-2">
+                <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-5 relative">
+                  <div className="absolute inset-0 rounded-full border border-red-200 animate-ping opacity-20" />
+                  <Trash2 className="w-7 h-7 text-red-500 relative z-10" />
+                </div>
+                <h3 className="heading-display text-[22px] text-[#1A1A2E] mb-2">Delete Log</h3>
+                <p className="text-[14px] text-black/50 font-medium mb-8 leading-relaxed max-w-[260px]">
+                  Are you sure you want to delete this log? This action cannot be undone.
+                </p>
+                <div className="flex gap-3 w-full">
+                  <motion.button whileTap={{ scale: 0.97 }} onClick={() => setDeleteConfirmId(null)} className="flex-1 py-4 bg-black/5 hover:bg-black/10 rounded-xl font-bold text-[15px] text-[#1A1A2E] transition-colors">Cancel</motion.button>
+                  <motion.button whileTap={{ scale: 0.97 }} onClick={() => { deleteLog(deleteConfirmId); setDeleteConfirmId(null); closeSheet(); }} className="flex-1 py-4 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-[15px] transition-colors shadow-md shadow-red-500/20">Delete</motion.button>
+                </div>
               </div>
             </motion.div>
           </>

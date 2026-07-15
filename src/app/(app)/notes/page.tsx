@@ -34,6 +34,7 @@ export default function NotesPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [viewMode, setViewMode] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   useEffect(() => { fetchNotes(); }, []);
 
@@ -67,7 +68,6 @@ export default function NotesPage() {
   };
 
   const deleteNote = async (id: string) => {
-    if (!confirm("Delete this note?")) return;
     setNotes(notes.filter(n => n._id !== id));
     try { await fetch(`/api/notes/${id}`, { method: "DELETE" }); }
     catch { fetchNotes(); }
@@ -75,7 +75,7 @@ export default function NotesPage() {
 
   const openEdit = (note: Note) => { setEditId(note._id); setTitle(note.title); setContent(note.content); setViewMode(true); setShowModal(true); };
   const openNew = () => { setEditId(null); setTitle(""); setContent(""); setViewMode(false); setShowModal(true); };
-  const closeModal = () => setShowModal(false);
+  const closeModal = () => { setShowModal(false); setDeleteConfirmId(null); };
 
   if (loading) return <Skeleton />;
 
@@ -182,7 +182,7 @@ export default function NotesPage() {
                   </div>
                   <div className="p-5 pb-28 border-t border-black/5 flex-shrink-0 flex gap-3">
                     {editId && (
-                      <motion.button type="button" whileTap={{ scale: 0.97 }} onClick={() => { deleteNote(editId); closeModal(); }}
+                      <motion.button type="button" whileTap={{ scale: 0.97 }} onClick={() => setDeleteConfirmId(editId)}
                         className="py-4 px-5 bg-red-50 text-red-600 rounded-xl font-bold flex items-center justify-center">
                         <Trash2 className="w-5 h-5" />
                       </motion.button>
@@ -194,6 +194,31 @@ export default function NotesPage() {
                   </div>
                 </form>
               )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Drawer */}
+      <AnimatePresence>
+        {deleteConfirmId && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDeleteConfirmId(null)} className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-[3px]" />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={spring} className="fixed bottom-0 left-0 right-0 z-[120] bg-white rounded-t-[2rem] p-6 pb-28 shadow-[0_-24px_80px_rgba(0,0,0,0.15)]">
+              <div className="flex flex-col items-center text-center pt-2">
+                <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-5 relative">
+                  <div className="absolute inset-0 rounded-full border border-red-200 animate-ping opacity-20" />
+                  <Trash2 className="w-7 h-7 text-red-500 relative z-10" />
+                </div>
+                <h3 className="heading-display text-[22px] text-[#1A1A2E] mb-2">Delete Note</h3>
+                <p className="text-[14px] text-black/50 font-medium mb-8 leading-relaxed max-w-[260px]">
+                  Are you sure you want to delete this note? This action cannot be undone.
+                </p>
+                <div className="flex gap-3 w-full">
+                  <motion.button whileTap={{ scale: 0.97 }} onClick={() => setDeleteConfirmId(null)} className="flex-1 py-4 bg-black/5 hover:bg-black/10 rounded-xl font-bold text-[15px] text-[#1A1A2E] transition-colors">Cancel</motion.button>
+                  <motion.button whileTap={{ scale: 0.97 }} onClick={() => { deleteNote(deleteConfirmId); setDeleteConfirmId(null); closeModal(); }} className="flex-1 py-4 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-[15px] transition-colors shadow-md shadow-red-500/20">Delete</motion.button>
+                </div>
+              </div>
             </motion.div>
           </>
         )}
