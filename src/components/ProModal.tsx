@@ -6,6 +6,7 @@ import { usePaystackPayment } from "react-paystack";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import toast from "react-hot-toast";
 
 interface ProModalProps {
   isOpen: boolean;
@@ -41,11 +42,11 @@ export function ProModal({ isOpen, onClose, userEmail }: ProModalProps) {
         await update({ isPro: true });
         window.location.reload();
       } else {
-        alert("Payment verification failed. Please contact support.");
+        toast.error("Payment verification failed. Please contact support.");
       }
     } catch (err) {
       console.error(err);
-      alert("An error occurred during verification.");
+      toast.error("An error occurred during verification.");
     } finally {
       setVerifying(false);
       onClose();

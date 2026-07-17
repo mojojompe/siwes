@@ -6,6 +6,7 @@ import { Send, Bot, User, Loader2, ArrowLeft, Mic, MicOff, FileText, CalendarPlu
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import ReactMarkdown from "react-markdown";
+import toast from "react-hot-toast";
 
 interface Message {
   _id?: string;
@@ -89,7 +90,7 @@ export default function ChatSessionPage() {
         recognitionRef.current.start();
         setIsListening(true);
       } else {
-        alert("Speech recognition is not supported in this browser.");
+        toast.error("Speech recognition is not supported in this browser.");
       }
     }
   };
@@ -133,11 +134,11 @@ export default function ChatSessionPage() {
         setMessages([...newMessages, { role: "model", content: data.response }]);
       } else {
         const errData = await res.json();
-        alert(`AI Error: ${errData.error || "Unknown error"}\nDetails: ${errData.details || ""}`);
+        toast.error(`AI Error: ${errData.error || "Unknown error"}\nDetails: ${errData.details || ""}`);
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to send message.");
+      toast.error("Failed to send message.");
     } finally {
       setSending(false);
     }
@@ -150,9 +151,9 @@ export default function ChatSessionPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title: "AI Note", content })
       });
-      alert("Exported to Notes!");
+      toast.success("Exported to Notes!");
     } catch (err) {
-      alert("Failed to export.");
+      toast.error("Failed to export.");
     }
   };
 
@@ -168,9 +169,9 @@ export default function ChatSessionPage() {
           weekNumber: 1
         })
       });
-      alert("Exported to Logs!");
+      toast.success("Exported to Logs!");
     } catch (err) {
-      alert("Failed to export.");
+      toast.error("Failed to export.");
     }
   };
 

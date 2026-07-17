@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Bot, Plus, Trash2, ChevronRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -22,6 +22,7 @@ export default function ChatHistoryPage() {
   const [chats, setChats] = useState<ChatSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [showProModal, setShowProModal] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
     if (session?.user && !(session.user as any).isPro) {
@@ -77,7 +78,6 @@ export default function ChatHistoryPage() {
   };
 
   const deleteChat = async (id: string) => {
-    if (!confirm("Delete this chat?")) return;
     setChats(chats.filter(c => c._id !== id));
     await fetch(`/api/ai/chat/${id}`, { method: "DELETE" });
   };
@@ -128,7 +128,7 @@ export default function ChatHistoryPage() {
               </div>
               
               <div className="flex items-center gap-2">
-                <button onClick={(e) => { e.stopPropagation(); deleteChat(chat._id); }} className="w-8 h-8 rounded-full flex items-center justify-center text-black/20 hover:text-red-500 hover:bg-red-50 transition-colors">
+                <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(chat._id); }} className="w-8 h-8 rounded-full flex items-center justify-center text-black/20 hover:text-red-500 hover:bg-red-50 transition-colors">
                   <Trash2 className="w-4 h-4" />
                 </button>
                 <ChevronRight className="w-5 h-5 text-black/20" />
@@ -139,6 +139,31 @@ export default function ChatHistoryPage() {
       </div>
 
       <ProModal isOpen={showProModal} onClose={() => router.push("/home")} userEmail={(session?.user as any)?.email || ""} />
+
+      {/* Delete Confirmation Drawer */}
+      <AnimatePresence>
+        {deleteConfirmId && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDeleteConfirmId(null)} className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-[3px]" />
+            <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={spring} className="fixed bottom-0 left-0 right-0 z-[120] bg-white rounded-t-[2rem] p-6 pb-28 shadow-[0_-24px_80px_rgba(0,0,0,0.15)]">
+              <div className="flex flex-col items-center text-center pt-2">
+                <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-5 relative">
+                  <div className="absolute inset-0 rounded-full border border-red-200 animate-ping opacity-20" />
+                  <Trash2 className="w-7 h-7 text-red-500 relative z-10" />
+                </div>
+                <h3 className="heading-display text-[22px] text-[#1A1A2E] mb-2">Delete Chat</h3>
+                <p className="text-[14px] text-black/50 font-medium mb-8 leading-relaxed max-w-[260px]">
+                  Are you sure you want to delete this chat session? This action cannot be undone.
+                </p>
+                <div className="flex gap-3 w-full">
+                  <motion.button whileTap={{ scale: 0.97 }} onClick={() => setDeleteConfirmId(null)} className="flex-1 py-4 bg-black/5 hover:bg-black/10 rounded-xl font-bold text-[15px] text-[#1A1A2E] transition-colors">Cancel</motion.button>
+                  <motion.button whileTap={{ scale: 0.97 }} onClick={() => { deleteChat(deleteConfirmId); setDeleteConfirmId(null); }} className="flex-1 py-4 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold text-[15px] transition-colors shadow-md shadow-red-500/20">Delete</motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

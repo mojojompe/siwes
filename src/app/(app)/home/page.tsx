@@ -11,6 +11,7 @@ import { ProModal } from "@/components/ProModal";
 import { EmailModal } from "@/components/EmailModal";
 import { RiveEmptyState } from "@/components/RiveEmptyState";
 import ReactMarkdown from "react-markdown";
+import toast from "react-hot-toast";
 
 interface Log { _id: string; date: string; description: string; dayOfWeek: string; weekNumber: number; tags?: string[]; reminder?: string; mediaUrls?: string[]; }
 interface Todo { _id: string; title: string; completed: boolean; date: string; }
@@ -190,11 +191,11 @@ export default function HomePage() {
       if (data.secure_url) {
         setMediaUrls(prev => [...prev, data.secure_url]);
       } else {
-        alert("Upload failed. Check Cloudinary settings.");
+        toast.error("Upload failed. Check Cloudinary settings.");
       }
     } catch (err) {
       console.error("Upload failed", err);
-      alert("Network error during upload.");
+      toast.error("Network error during upload.");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -492,7 +493,7 @@ export default function HomePage() {
                               recognition.start();
                               setIsListening(true);
                             } else {
-                              alert("Speech recognition is not supported in this browser.");
+                              toast.error("Speech recognition is not supported in this browser.");
                             }
                           }
                         }} className={`transition-colors flex items-center gap-1.5 px-2 py-1 rounded-lg ${isListening ? "bg-red-50 text-red-500 animate-pulse" : "bg-black/5 text-black/40 hover:text-[#3B5BDB]"}`}>
