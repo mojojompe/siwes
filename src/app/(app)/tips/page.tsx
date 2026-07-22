@@ -78,7 +78,7 @@ export default function TipsPage() {
       </motion.header>
 
       <div className="space-y-4 relative z-10">
-        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1, ...spring }} className="rounded-[1.75rem] p-6 mb-6 flex gap-4 items-center bg-gradient-to-br from-[#3B5BDB] to-[#1A1A2E] text-white shadow-xl shadow-[#3B5BDB]/20">
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.1, ...spring }} className="rounded-[1.75rem] p-6 mb-6 flex gap-4 items-center bg-gradient-to-br from-[#6CAADE] to-[#1A1A2E] text-white shadow-xl shadow-[#6CAADE]/20">
           <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center border border-white/10 flex-shrink-0">
             <Lightbulb className="w-6 h-6 text-white" />
           </div>
@@ -102,12 +102,12 @@ export default function TipsPage() {
                   <Icon className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-[16px] font-bold text-[#1A1A2E] group-hover:text-[#3B5BDB] transition-colors">{tip.title}</h3>
+                  <h3 className="text-[16px] font-bold text-[#1A1A2E] group-hover:text-[#6CAADE] transition-colors">{tip.title}</h3>
                   <p className="text-[12px] text-black/50 font-medium">{tip.content.length} Steps</p>
                 </div>
               </div>
-              <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-[#3B5BDB]/10 transition-colors">
-                <ChevronRight className="w-4 h-4 text-black/40 group-hover:text-[#3B5BDB] transition-colors" />
+              <div className="w-8 h-8 rounded-full bg-black/5 flex items-center justify-center group-hover:bg-[#6CAADE]/10 transition-colors">
+                <ChevronRight className="w-4 h-4 text-black/40 group-hover:text-[#6CAADE] transition-colors" />
               </div>
             </motion.div>
           );

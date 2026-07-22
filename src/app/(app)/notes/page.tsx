@@ -111,7 +111,7 @@ export default function NotesPage() {
                 >
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
                     <motion.button whileTap={{ scale: 0.8 }} onClick={(e) => { e.stopPropagation(); openEdit(note); }}
-                      className="p-1.5 bg-white/70 backdrop-blur-sm text-black/40 hover:text-[#3B5BDB] rounded-lg transition-colors">
+                      className="p-1.5 bg-white/70 backdrop-blur-sm text-black/40 hover:text-[#6CAADE] rounded-lg transition-colors">
                       <Edit3 className="w-3.5 h-3.5" />
                     </motion.button>
                     <motion.button whileTap={{ scale: 0.8 }} onClick={(e) => { e.stopPropagation(); deleteNote(note._id); }}
@@ -133,7 +133,7 @@ export default function NotesPage() {
 
       {/* FAB */}
       <motion.button whileTap={{ scale: 0.93 }} transition={spring} onClick={openNew}
-        className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-[#3B5BDB] text-white flex items-center justify-center shadow-[0_8px_24px_rgba(59,91,219,0.4)] hover:bg-[#3451C9] transition-colors">
+        className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-[#6CAADE] text-white flex items-center justify-center shadow-[0_8px_24px_rgba(108,170,222,0.4)] hover:bg-[#4A8CC0] transition-colors">
         <Plus className="w-6 h-6" strokeWidth={2.5} />
       </motion.button>
 
@@ -154,7 +154,7 @@ export default function NotesPage() {
                 <div className="flex gap-2">
                   {viewMode && (
                     <motion.button whileTap={{ scale: 0.85 }} onClick={() => setViewMode(false)}
-                      className="w-8 h-8 rounded-full bg-[#3B5BDB]/10 flex items-center justify-center text-[#3B5BDB]">
+                      className="w-8 h-8 rounded-full bg-[#6CAADE]/10 flex items-center justify-center text-[#6CAADE]">
                       <Edit3 className="w-4 h-4" />
                     </motion.button>
                   )}

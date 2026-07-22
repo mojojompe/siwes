@@ -54,7 +54,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
             
             {/* Content */}
             <div className="relative z-10 flex flex-col items-center gap-5">
-              <div ref={iconRef} className="w-28 h-28 rounded-[2rem] overflow-hidden shadow-[0_24px_64px_rgba(59,91,219,0.2)] border border-black/5">
+              <div ref={iconRef} className="w-28 h-28 rounded-[2rem] overflow-hidden shadow-[0_24px_64px_rgba(108,170,222,0.2)] border border-black/5">
                 <img src="/icon.png" alt="Siwes Tracker" className="w-full h-full object-cover" />
               </div>
               <h1 ref={titleRef} className="heading-display text-4xl text-[#1A1A2E] opacity-0">

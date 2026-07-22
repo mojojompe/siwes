@@ -71,12 +71,12 @@ export function EmailModal({ isOpen, onSuccess }: EmailModalProps) {
             transition={spring}
             className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 glass-card rounded-[2rem] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.2)] max-w-sm mx-auto overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#3B5BDB]/10 rounded-full blur-3xl" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#6CAADE]/10 rounded-full blur-3xl" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl" />
 
             <div className="relative z-10 flex flex-col items-center text-center">
               <div className="w-16 h-16 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-5 shadow-inner">
-                <Mail className="w-8 h-8 text-[#3B5BDB]" />
+                <Mail className="w-8 h-8 text-[#6CAADE]" />
               </div>
               
               <h2 className="text-[20px] font-bold text-[#1A1A2E] mb-2 leading-tight">Secure Your Account</h2>

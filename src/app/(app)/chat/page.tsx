@@ -92,7 +92,7 @@ export default function ChatHistoryPage() {
             <h1 className="heading-display text-[26px] text-[#1A1A2E]">AI Chat</h1>
             <p className="text-[13px] font-medium text-black/40 mt-0.5">Your intelligent SIWES assistant</p>
           </div>
-          <motion.button whileTap={{ scale: 0.9 }} onClick={createChat} className="w-10 h-10 rounded-full bg-[#3B5BDB] text-white flex items-center justify-center shadow-md">
+          <motion.button whileTap={{ scale: 0.9 }} onClick={createChat} className="w-10 h-10 rounded-full bg-[#6CAADE] text-white flex items-center justify-center shadow-md">
             <Plus className="w-5 h-5" />
           </motion.button>
         </div>
@@ -102,7 +102,7 @@ export default function ChatHistoryPage() {
         {chats.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card rounded-[1.5rem] p-8 text-center mt-4">
             <div className="w-16 h-16 bg-indigo-50 border border-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Bot className="w-8 h-8 text-[#3B5BDB]" />
+              <Bot className="w-8 h-8 text-[#6CAADE]" />
             </div>
             <p className="text-[14px] font-medium text-black/40">No chat history found.</p>
             <p className="text-[12px] text-black/30 mt-1">Tap the plus button to start a new session!</p>
@@ -116,8 +116,8 @@ export default function ChatHistoryPage() {
               onClick={() => router.push(`/chat/${chat._id}`)}
             >
               <div className="flex items-center gap-3 overflow-hidden">
-                <div className="w-10 h-10 rounded-full bg-[#3B5BDB]/10 flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-5 h-5 text-[#3B5BDB]" />
+                <div className="w-10 h-10 rounded-full bg-[#6CAADE]/10 flex items-center justify-center flex-shrink-0">
+                  <Bot className="w-5 h-5 text-[#6CAADE]" />
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-[15px] font-bold text-[#1A1A2E] truncate">{chat.title}</h3>

@@ -59,7 +59,7 @@ export default function PreviousWeeksPage() {
       ) : (
         <div className="relative">
           {/* Timeline line */}
-          <div className="absolute left-6 top-6 bottom-6 w-[2px] bg-gradient-to-b from-[#3B5BDB]/30 via-[#3B5BDB]/15 to-transparent rounded-full" />
+          <div className="absolute left-6 top-6 bottom-6 w-[2px] bg-gradient-to-b from-[#6CAADE]/30 via-[#6CAADE]/15 to-transparent rounded-full" />
 
           <div className="space-y-3 pl-14">
             {sortedWeeks.map((week, wi) => {
@@ -75,7 +75,7 @@ export default function PreviousWeeksPage() {
                   className="relative"
                 >
                   {/* Timeline dot */}
-                  <div className="absolute -left-[3.25rem] top-5 w-4 h-4 rounded-full bg-white border-2 border-[#3B5BDB]/40 shadow-[0_0_0_3px_rgba(59,91,219,0.08)]" />
+                  <div className="absolute -left-[3.25rem] top-5 w-4 h-4 rounded-full bg-white border-2 border-[#6CAADE]/40 shadow-[0_0_0_3px_rgba(108,170,222,0.08)]" />
 
                   <div className="glass-card rounded-[1.5rem] overflow-hidden">
                     <motion.button
@@ -84,7 +84,7 @@ export default function PreviousWeeksPage() {
                       className="w-full p-5 flex items-center justify-between text-left"
                     >
                       <div className="flex items-baseline gap-3">
-                        <span className="mono text-[22px] font-700 text-[#3B5BDB]">W{week}</span>
+                        <span className="mono text-[22px] font-700 text-[#6CAADE]">W{week}</span>
                         <div>
                           <p className="text-[14px] font-700 text-[#1A1A2E]">Week {week}</p>
                           <p className="text-[12px] text-black/40 font-medium">
@@ -120,7 +120,7 @@ export default function PreviousWeeksPage() {
                                 className="bg-white/60 backdrop-blur-sm rounded-2xl p-4 border border-white/70"
                               >
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#3B5BDB]/8 text-[#3B5BDB] rounded-full text-[11px] font-bold border border-[#3B5BDB]/10">
+                                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#6CAADE]/8 text-[#6CAADE] rounded-full text-[11px] font-bold border border-[#6CAADE]/10">
                                     <Clock className="w-3 h-3" />
                                     {log.dayOfWeek}
                                   </span>

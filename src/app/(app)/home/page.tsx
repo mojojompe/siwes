@@ -57,6 +57,7 @@ export default function HomePage() {
   const [showNotifPointer, setShowNotifPointer] = useState(false);
   const [showProModal, setShowProModal] = useState(false);
   const [showEmailModal, setShowEmailModal] = useState(false);
+  const [showAiMenu, setShowAiMenu] = useState(false);
 
   useEffect(() => { 
     fetchAllData(); 
@@ -237,8 +238,8 @@ export default function HomePage() {
           </div>
           <div className="flex gap-3">
             <div className="relative">
-              <motion.button whileTap={{ scale: 0.9 }} onClick={() => router.push("/tips")} className="w-11 h-11 rounded-2xl bg-white shadow-sm flex items-center justify-center text-[#3B5BDB] border border-[#3B5BDB]/20 hover:bg-[#3B5BDB]/5 transition-colors">
-                <Lightbulb className="w-5 h-5 fill-[#3B5BDB]/20" />
+              <motion.button whileTap={{ scale: 0.9 }} onClick={() => router.push("/tips")} className="w-11 h-11 rounded-2xl bg-white shadow-sm flex items-center justify-center text-[#6CAADE] border border-[#6CAADE]/20 hover:bg-[#6CAADE]/5 transition-colors">
+                <Lightbulb className="w-5 h-5 fill-[#6CAADE]/20" />
               </motion.button>
               <AnimatePresence>
                 {showTipsPointer && (
@@ -303,7 +304,7 @@ export default function HomePage() {
                   <div className="space-y-3">
                     {filteredLogs.map(log => (
                       <div key={log._id} onClick={() => openEdit(log)} className="glass-card rounded-[1.25rem] p-4 cursor-pointer hover:bg-black/5">
-                        <div className="flex gap-3"><Calendar className="w-4 h-4 text-[#3B5BDB] flex-shrink-0 mt-0.5" />
+                        <div className="flex gap-3"><Calendar className="w-4 h-4 text-[#6CAADE] flex-shrink-0 mt-0.5" />
                         <div><p className="text-[13px] text-[#1A1A2E] font-medium leading-relaxed line-clamp-2">{log.description}</p></div></div>
                       </div>
                     ))}
@@ -360,10 +361,10 @@ export default function HomePage() {
                     {groupedLogs[sortedWeeks[currentWeekIndex]].map((log, i) => (
                       <motion.div key={log._id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.05, ...spring }} onClick={() => openEdit(log)} className="glass-card rounded-[1.5rem] p-5 relative overflow-hidden group cursor-pointer hover:bg-black/5 transition-colors">
                         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={(e) => { e.stopPropagation(); openEdit(log); }} className="p-1.5 bg-white/70 backdrop-blur-sm text-black/40 hover:text-[#3B5BDB] rounded-lg transition-colors"><Edit3 className="w-3.5 h-3.5" /></button>
+                          <button onClick={(e) => { e.stopPropagation(); openEdit(log); }} className="p-1.5 bg-white/70 backdrop-blur-sm text-black/40 hover:text-[#6CAADE] rounded-lg transition-colors"><Edit3 className="w-3.5 h-3.5" /></button>
                         </div>
                         <div className="flex items-center gap-3 mb-3">
-                          <div className="w-10 h-10 rounded-xl bg-[#3B5BDB]/8 flex items-center justify-center border border-[#3B5BDB]/10"><Calendar className="w-4 h-4 text-[#3B5BDB]" /></div>
+                          <div className="w-10 h-10 rounded-xl bg-[#6CAADE]/8 flex items-center justify-center border border-[#6CAADE]/10"><Calendar className="w-4 h-4 text-[#6CAADE]" /></div>
                           <div><h3 className="text-[15px] font-700 text-[#1A1A2E] leading-tight">{log.dayOfWeek}</h3><p className="mono text-[10px] text-black/40 font-bold mt-0.5">{new Date(log.date).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</p></div>
                         </div>
                         <p className="text-[13px] text-black/50 leading-relaxed font-medium line-clamp-3 pl-1">{log.description}</p>
@@ -394,7 +395,7 @@ export default function HomePage() {
                       <button
                         onClick={() => setCurrentWeekIndex(prev => Math.max(0, prev - 1))}
                         disabled={currentWeekIndex === 0}
-                        className="px-4 py-2 text-[13px] font-bold text-[#3B5BDB] disabled:text-black/20 hover:bg-[#3B5BDB]/10 rounded-lg transition-colors flex items-center gap-1"
+                        className="px-4 py-2 text-[13px] font-bold text-[#6CAADE] disabled:text-black/20 hover:bg-[#6CAADE]/10 rounded-lg transition-colors flex items-center gap-1"
                       >
                         <ChevronDown className="w-4 h-4 rotate-90" /> Newer
                       </button>
@@ -406,7 +407,7 @@ export default function HomePage() {
                       <button
                         onClick={() => setCurrentWeekIndex(prev => Math.min(sortedWeeks.length - 1, prev + 1))}
                         disabled={currentWeekIndex === sortedWeeks.length - 1}
-                        className="px-4 py-2 text-[13px] font-bold text-[#3B5BDB] disabled:text-black/20 hover:bg-[#3B5BDB]/10 rounded-lg transition-colors flex items-center gap-1"
+                        className="px-4 py-2 text-[13px] font-bold text-[#6CAADE] disabled:text-black/20 hover:bg-[#6CAADE]/10 rounded-lg transition-colors flex items-center gap-1"
                       >
                         Older <ChevronDown className="w-4 h-4 -rotate-90" />
                       </button>
@@ -419,7 +420,7 @@ export default function HomePage() {
         </AnimatePresence>
       </div>
 
-      <motion.button whileTap={{ scale: 0.93 }} transition={spring} onClick={openNew} className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-[#3B5BDB] text-white flex items-center justify-center shadow-[0_8px_24px_rgba(59,91,219,0.4)] hover:bg-[#3451C9] transition-colors">
+      <motion.button whileTap={{ scale: 0.93 }} transition={spring} onClick={openNew} className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-[#6CAADE] text-white flex items-center justify-center shadow-[0_8px_24px_rgba(108,170,222,0.4)] hover:bg-[#4A8CC0] transition-colors">
         <Plus className="w-6 h-6" strokeWidth={2.5} />
       </motion.button>
 
@@ -435,7 +436,7 @@ export default function HomePage() {
                 </h3>
                 <div className="flex gap-2">
                   {viewMode && (
-                    <motion.button whileTap={{ scale: 0.85 }} onClick={() => setViewMode(false)} className="w-8 h-8 rounded-full bg-[#3B5BDB]/10 flex items-center justify-center text-[#3B5BDB]"><Edit3 className="w-4 h-4" /></motion.button>
+                    <motion.button whileTap={{ scale: 0.85 }} onClick={() => setViewMode(false)} className="w-8 h-8 rounded-full bg-[#6CAADE]/10 flex items-center justify-center text-[#6CAADE]"><Edit3 className="w-4 h-4" /></motion.button>
                   )}
                   <motion.button whileTap={{ scale: 0.85 }} onClick={closeSheet} className="w-8 h-8 rounded-full bg-black/6 flex items-center justify-center text-black/40"><X className="w-4 h-4" /></motion.button>
                 </div>
@@ -474,7 +475,7 @@ export default function HomePage() {
                     <label className="block text-[11px] font-bold text-black/40 uppercase tracking-wider mb-1.5 ml-1">Date</label>
                     <input type="date" required value={date} onChange={(e) => setDate(e.target.value)} className="w-full px-4 py-3.5 input-premium text-[14px] font-medium" />
                   </div>
-                  <div>
+
                     <div className="flex items-center justify-between mb-1.5 ml-1 pr-1">
                       <label className="block text-[11px] font-bold text-black/40 uppercase tracking-wider">Daily Log</label>
                       <div className="flex items-center gap-4">
@@ -496,7 +497,7 @@ export default function HomePage() {
                               toast.error("Speech recognition is not supported in this browser.");
                             }
                           }
-                        }} className={`transition-colors flex items-center gap-1.5 px-2 py-1 rounded-lg ${isListening ? "bg-red-50 text-red-500 animate-pulse" : "bg-black/5 text-black/40 hover:text-[#3B5BDB]"}`}>
+                        }} className={`transition-colors flex items-center gap-1.5 px-2 py-1 rounded-lg ${isListening ? "bg-red-50 text-red-500 animate-pulse" : "bg-black/5 text-black/40 hover:text-[#6CAADE]"}`}>
                           {isListening ? (
                             <><div className="w-2.5 h-2.5 bg-red-500 rounded-sm" /><span className="text-[10px] font-bold tracking-wider">REC</span></>
                           ) : (
@@ -506,21 +507,53 @@ export default function HomePage() {
                         
                         {/* AI Rephrase Button */}
                         <div className="relative">
-                          <button type="button" onClick={async () => {
+                          <button type="button" onClick={() => {
                             if (!isPro) {
                               setShowProModal(true);
                               return;
                             }
                             if (!description.trim()) return;
-                            setSaving(true);
-                            try {
-                              const res = await fetch("/api/ai/rephrase", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: description }) });
-                              const data = await res.json();
-                              if (data.rephrased) setDescription(data.rephrased);
-                            } catch (err) {} finally { setSaving(false); }
+                            setShowAiMenu(!showAiMenu);
                           }} className={`${isPro ? "text-amber-500/60 hover:text-amber-500" : "text-amber-500/40 hover:text-amber-500/60"} transition-colors flex items-center gap-1`}>
                             <Sparkles className="w-5 h-5" />
                           </button>
+                          
+                          <AnimatePresence>
+                            {showAiMenu && (
+                              <motion.div initial={{ opacity: 0, scale: 0.9, y: -5 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: -5 }}
+                                className="absolute top-full right-0 mt-3 bg-white border border-black/5 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.12)] z-50 min-w-[160px]">
+                                <div className="p-1.5 flex flex-col relative z-10 bg-white rounded-2xl">
+                                  {[
+                                    { label: "Rephrase", action: "rephrase" },
+                                    { label: "Elongate", action: "elongate" },
+                                    { label: "Shorten", action: "shorten" },
+                                    { label: "Make Markdown", action: "markdown" }
+                                  ].map((opt) => (
+                                    <button
+                                      key={opt.action}
+                                      type="button"
+                                      onClick={async () => {
+                                        setShowAiMenu(false);
+                                        setSaving(true);
+                                        try {
+                                          const res = await fetch("/api/ai/rephrase", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: description, action: opt.action }) });
+                                          const data = await res.json();
+                                          if (data.rephrased) setDescription(data.rephrased);
+                                          else if (data.error) toast.error(data.error);
+                                        } catch (err) {
+                                          toast.error("Failed to apply AI action");
+                                        } finally { setSaving(false); }
+                                      }}
+                                      className="text-left px-3 py-2.5 text-[13px] font-bold text-black/70 hover:bg-black/5 hover:text-black rounded-xl transition-colors"
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  ))}
+                                </div>
+                                <div className="absolute -top-1.5 right-3 w-3 h-3 bg-white border-t border-l border-black/5 rotate-45 z-0" />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                           
                           <AnimatePresence>
                             {showAiTooltip && (
@@ -548,7 +581,14 @@ export default function HomePage() {
                         </div>
                       </div>
                     </div>
-                    <textarea required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What did you learn or do today?" className="w-full px-4 py-3.5 input-premium text-[14px] font-medium min-h-[120px] resize-none leading-relaxed" />
+                    <div className="relative mt-2">
+                      <textarea required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What did you learn or do today?" readOnly={viewMode || saving} className={`w-full px-4 py-3.5 input-premium text-[14px] font-medium min-h-[120px] resize-none leading-relaxed transition-all ${saving && description ? "opacity-50 blur-[1px] animate-pulse" : ""}`} />
+                      {saving && description && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-[1px] rounded-2xl z-10">
+                          <Sparkles className="w-8 h-8 text-amber-500 animate-spin" />
+                        </div>
+                      )}
+                    </div>
                     
                     {/* Media Upload Previews */}
                     {mediaUrls.length > 0 && (
@@ -573,8 +613,7 @@ export default function HomePage() {
                         <Loader2 className="w-3 h-3 animate-spin" /> Uploading image to Cloudinary...
                       </div>
                     )}
-                  </div>
-                  
+
                     <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-[11px] font-bold text-black/40 uppercase tracking-wider mb-1.5 ml-1">Tags</label>

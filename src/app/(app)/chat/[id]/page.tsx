@@ -175,7 +175,7 @@ export default function ChatSessionPage() {
     }
   };
 
-  if (loading) return <main className="flex-1 flex items-center justify-center min-h-screen mesh-bg"><Loader2 className="w-8 h-8 text-[#3B5BDB] animate-spin" /></main>;
+  if (loading) return <main className="flex-1 flex items-center justify-center min-h-screen mesh-bg"><Loader2 className="w-8 h-8 text-[#6CAADE] animate-spin" /></main>;
 
   return (
     <main className="flex flex-col min-h-[100dvh] bg-grid relative">
@@ -195,7 +195,7 @@ export default function ChatSessionPage() {
         {messages.length === 0 && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-center pt-20">
             <div className="w-20 h-20 rounded-[2rem] bg-indigo-50 border border-indigo-100 flex items-center justify-center mx-auto mb-5 shadow-inner">
-              <Bot className="w-10 h-10 text-[#3B5BDB]" />
+              <Bot className="w-10 h-10 text-[#6CAADE]" />
             </div>
             <h2 className="heading-display text-[22px] text-[#1A1A2E] mb-2">How can I help?</h2>
             <p className="text-[14px] text-black/50 font-medium max-w-[260px] mx-auto leading-relaxed mb-6">
@@ -204,7 +204,7 @@ export default function ChatSessionPage() {
 
             <button 
               onClick={() => handleSend("Summarize my recent logs", "summarize-logs")}
-              className="px-4 py-2 bg-white/60 border border-black/10 rounded-full text-[13px] font-bold text-[#3B5BDB] shadow-sm hover:bg-white transition-colors flex items-center gap-2 mx-auto"
+              className="px-4 py-2 bg-white/60 border border-black/10 rounded-full text-[13px] font-bold text-[#6CAADE] shadow-sm hover:bg-white transition-colors flex items-center gap-2 mx-auto"
             >
               <Sparkles className="w-4 h-4" /> Summarize my recent logs
             </button>
@@ -216,7 +216,7 @@ export default function ChatSessionPage() {
             <motion.div key={msg._id || i} initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className={`flex flex-col gap-1 max-w-[85%] ${msg.role === "user" ? "ml-auto items-end" : "mr-auto items-start"}`}>
               <div className={`flex gap-3 w-full ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-auto shadow-sm ${msg.role === "user" ? "bg-[#1A1A2E]" : "bg-indigo-100"}`}>
-                  {msg.role === "user" ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-[#3B5BDB]" />}
+                  {msg.role === "user" ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-[#6CAADE]" />}
                 </div>
                 <div className={`p-4 rounded-[1.25rem] ${msg.role === "user" ? "bg-[#1A1A2E] text-white rounded-br-sm shadow-md" : "glass-card text-[#1A1A2E] rounded-bl-sm border border-black/5"}`}>
                   <div className={`text-[14px] font-medium leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none ${msg.role === "user" ? "" : "opacity-90 prose-p:my-1 prose-ul:my-1 prose-ol:my-1"}`}>
@@ -227,10 +227,10 @@ export default function ChatSessionPage() {
               
               {msg.role === "model" && (
                 <div className="flex gap-2 pl-11 mt-1 opacity-0 hover:opacity-100 transition-opacity" style={{ opacity: 1 }}>
-                  <button onClick={() => exportToNote(msg.content)} className="text-[10px] font-bold text-black/40 hover:text-[#3B5BDB] flex items-center gap-1 bg-white/50 px-2 py-1 rounded-md border border-black/5">
+                  <button onClick={() => exportToNote(msg.content)} className="text-[10px] font-bold text-black/40 hover:text-[#6CAADE] flex items-center gap-1 bg-white/50 px-2 py-1 rounded-md border border-black/5">
                     <FileText className="w-3 h-3" /> Export to Note
                   </button>
-                  <button onClick={() => exportToLog(msg.content)} className="text-[10px] font-bold text-black/40 hover:text-[#3B5BDB] flex items-center gap-1 bg-white/50 px-2 py-1 rounded-md border border-black/5">
+                  <button onClick={() => exportToLog(msg.content)} className="text-[10px] font-bold text-black/40 hover:text-[#6CAADE] flex items-center gap-1 bg-white/50 px-2 py-1 rounded-md border border-black/5">
                     <CalendarPlus className="w-3 h-3" /> Export to Log
                   </button>
                 </div>
@@ -240,7 +240,7 @@ export default function ChatSessionPage() {
 
           {sending && (
              <motion.div initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className="flex gap-3 max-w-[85%] mr-auto">
-               <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-auto bg-indigo-100 shadow-sm"><Bot className="w-4 h-4 text-[#3B5BDB]" /></div>
+               <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-auto bg-indigo-100 shadow-sm"><Bot className="w-4 h-4 text-[#6CAADE]" /></div>
                <div className="p-4 rounded-[1.25rem] glass-card text-[#1A1A2E] rounded-bl-sm border border-black/5 flex items-center gap-1.5 h-12">
                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0 }} className="w-1.5 h-1.5 rounded-full bg-black/20" />
                  <motion.div animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-1.5 h-1.5 rounded-full bg-black/20" />
@@ -257,7 +257,7 @@ export default function ChatSessionPage() {
           <button 
             type="button" 
             onClick={toggleListening} 
-            className={`w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-md border border-black/5 transition-colors flex-shrink-0 ${isListening ? "text-red-500" : "text-black/40 hover:text-[#3B5BDB]"}`}
+            className={`w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-md border border-black/5 transition-colors flex-shrink-0 ${isListening ? "text-red-500" : "text-black/40 hover:text-[#6CAADE]"}`}
           >
             {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
           </button>
@@ -268,9 +268,9 @@ export default function ChatSessionPage() {
               onChange={(e) => setInput(e.target.value)} 
               placeholder="Message AI..." 
               disabled={sending} 
-              className="w-full pl-5 pr-14 h-14 glass-card bg-white/80 rounded-[2rem] text-[15px] font-medium text-[#1A1A2E] placeholder:text-black/30 shadow-md border border-black/5 focus:outline-none focus:ring-2 focus:ring-[#3B5BDB]/20" 
+              className="w-full pl-5 pr-14 h-14 glass-card bg-white/80 rounded-[2rem] text-[15px] font-medium text-[#1A1A2E] placeholder:text-black/30 shadow-md border border-black/5 focus:outline-none focus:ring-2 focus:ring-[#6CAADE]/20" 
             />
-            <motion.button whileTap={{ scale: 0.9 }} type="submit" disabled={!input.trim() || sending} className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#3B5BDB] text-white flex items-center justify-center disabled:opacity-50 transition-colors shadow-sm">
+            <motion.button whileTap={{ scale: 0.9 }} type="submit" disabled={!input.trim() || sending} className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-[#6CAADE] text-white flex items-center justify-center disabled:opacity-50 transition-colors shadow-sm">
               <Send className="w-4 h-4 ml-0.5" />
             </motion.button>
           </div>

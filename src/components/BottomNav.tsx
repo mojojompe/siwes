@@ -91,12 +91,12 @@ export function BottomNav() {
                           }}
                           className={`w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all ${
                             isActive
-                              ? "bg-[#3B5BDB]/10 text-[#3B5BDB]"
+                              ? "bg-[#6CAADE]/10 text-[#6CAADE]"
                               : "text-black/60 hover:bg-black/4 hover:text-black"
                           }`}
                         >
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                            isActive ? "bg-[#3B5BDB] shadow-[0_4px_12px_rgba(59,91,219,0.3)]" : "bg-black/5"
+                            isActive ? "bg-[#6CAADE] shadow-[0_4px_12px_rgba(108,170,222,0.3)]" : "bg-black/5"
                           }`}>
                             <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-black/50"}`} />
                           </div>
@@ -111,12 +111,12 @@ export function BottomNav() {
                           onClick={() => setShowMore(false)}
                           className={`flex items-center gap-4 px-4 py-3.5 rounded-2xl transition-all ${
                             isActive
-                              ? "bg-[#3B5BDB]/10 text-[#3B5BDB]"
+                              ? "bg-[#6CAADE]/10 text-[#6CAADE]"
                               : "text-black/60 hover:bg-black/4 hover:text-black"
                           }`}
                         >
                           <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                            isActive ? "bg-[#3B5BDB] shadow-[0_4px_12px_rgba(59,91,219,0.3)]" : "bg-black/5"
+                            isActive ? "bg-[#6CAADE] shadow-[0_4px_12px_rgba(108,170,222,0.3)]" : "bg-black/5"
                           }`}>
                             <Icon className={`w-5 h-5 ${isActive ? "text-white" : "text-black/50"}`} />
                           </div>
@@ -124,7 +124,7 @@ export function BottomNav() {
                           {isActive && (
                             <motion.div
                               layoutId="moreActive"
-                              className="ml-auto w-1.5 h-1.5 rounded-full bg-[#3B5BDB]"
+                              className="ml-auto w-1.5 h-1.5 rounded-full bg-[#6CAADE]"
                             />
                           )}
                         </Link>
@@ -155,13 +155,13 @@ export function BottomNav() {
                 <motion.div
                   whileTap={{ scale: 0.88 }}
                   className={`relative flex items-center justify-center h-13 rounded-full transition-colors ${
-                    isActive ? "text-[#3B5BDB]" : "text-black/35 hover:text-black/60"
+                    isActive ? "text-[#6CAADE]" : "text-black/35 hover:text-black/60"
                   }`}
                 >
                   {isActive && (
                     <motion.div
                       layoutId="activeTabBg"
-                      className="absolute inset-0 rounded-full bg-[#3B5BDB]/10 border border-[#3B5BDB]/15"
+                      className="absolute inset-0 rounded-full bg-[#6CAADE]/10 border border-[#6CAADE]/15"
                       transition={springConfig}
                     />
                   )}
@@ -190,13 +190,13 @@ export function BottomNav() {
           whileTap={{ scale: 0.88 }}
           onClick={() => setShowMore(!showMore)}
           className={`glass-card relative flex flex-col items-center justify-center w-[68px] h-[68px] rounded-full transition-colors flex-shrink-0 shadow-lg border border-white/40 ${
-            showMore || allMoreActive ? "text-[#3B5BDB] bg-white/90" : "text-black/40 hover:text-black/70 bg-white/50"
+            showMore || allMoreActive ? "text-[#6CAADE] bg-white/90" : "text-black/40 hover:text-black/70 bg-white/50"
           }`}
         >
           {(showMore || allMoreActive) && (
             <motion.div
               layoutId="activeTabBg"
-              className="absolute inset-0 rounded-full bg-[#3B5BDB]/10 border border-[#3B5BDB]/15"
+              className="absolute inset-0 rounded-full bg-[#6CAADE]/10 border border-[#6CAADE]/15"
               transition={springConfig}
             />
           )}

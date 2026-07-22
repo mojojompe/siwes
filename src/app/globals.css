@@ -5,7 +5,7 @@
   color-scheme: light;
   --background: #F8F7F4;
   --foreground: #1A1A2E;
-  --primary: #3B5BDB;
+  --primary: #6CAADE;
   --primary-light: #EEF2FF;
   --card: rgba(255,255,255,0.75);
   --card-border: rgba(255,255,255,0.6);
@@ -68,19 +68,19 @@ html, body {
   color: white;
   font-weight: 700;
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(59, 91, 219, 0.3), 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 16px rgba(108,170,222, 0.3), 0 1px 2px rgba(0,0,0,0.1);
   transition: transform 200ms ease-out, box-shadow 200ms ease-out, background 150ms;
   active-state: transform 0.98;
 }
 
 .btn-primary:hover {
-  background: #3451C9;
-  box-shadow: 0 6px 24px rgba(59, 91, 219, 0.4), 0 2px 4px rgba(0,0,0,0.1);
+  background: #4A8CC0;
+  box-shadow: 0 6px 24px rgba(108,170,222, 0.4), 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .btn-primary:active {
   transform: scale(0.98);
-  box-shadow: 0 2px 8px rgba(59, 91, 219, 0.2);
+  box-shadow: 0 2px 8px rgba(108,170,222, 0.2);
 }
 
 /* Input focus glow */
@@ -94,8 +94,8 @@ html, body {
 .input-premium:focus {
   outline: none;
   background: rgba(255,255,255,0.95);
-  border-color: rgba(59, 91, 219, 0.4);
-  box-shadow: 0 0 0 3px rgba(59, 91, 219, 0.12), inset 0 1px 3px rgba(0,0,0,0.04);
+  border-color: rgba(108,170,222, 0.4);
+  box-shadow: 0 0 0 3px rgba(108,170,222, 0.12), inset 0 1px 3px rgba(0,0,0,0.04);
 }
 
 /* Claymorphic floating animation (Disabled for performance) */
@@ -140,7 +140,7 @@ html, body {
 /* Mesh background gradient */
 .mesh-bg {
   background: 
-    radial-gradient(ellipse at 20% 50%, rgba(59, 91, 219, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 50%, rgba(108,170,222, 0.15) 0%, transparent 60%),
     radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 60%),
     radial-gradient(ellipse at 60% 80%, rgba(59, 130, 246, 0.10) 0%, transparent 60%),
     #F8F7F4;
@@ -148,7 +148,7 @@ html, body {
 
 .mesh-bg-dark {
   background:
-    radial-gradient(ellipse at 20% 50%, rgba(59, 91, 219, 0.3) 0%, transparent 60%),
+    radial-gradient(ellipse at 20% 50%, rgba(108,170,222, 0.3) 0%, transparent 60%),
     radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.25) 0%, transparent 60%),
     radial-gradient(ellipse at 60% 80%, rgba(59, 130, 246, 0.2) 0%, transparent 60%),
     #0F0F1A;

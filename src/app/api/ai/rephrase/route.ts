@@ -14,7 +14,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Premium feature. Upgrade to Pro required." }, { status: 403 });
     }
 
-    const { text } = await req.json();
+    const { text, action = "rephrase" } = await req.json();
     if (!text) {
       return NextResponse.json({ error: "No text provided" }, { status: 400 });
     }
@@ -27,8 +27,18 @@ export async function POST(req: Request) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
+    let actionInstruction = "Please rephrase the following text to sound professional, clear, and well-structured, suitable for an official logbook. Do not add any new facts, just improve the grammar and tone.";
+    
+    if (action === "elongate") {
+      actionInstruction = "Please expand on the following text, adding more professional detail and context suitable for an official logbook, while keeping it relevant.";
+    } else if (action === "shorten") {
+      actionInstruction = "Please summarize and shorten the following text to make it concise and professional, suitable for an official logbook.";
+    } else if (action === "markdown") {
+      actionInstruction = "Please format the following text professionally using Markdown (e.g. lists, bold text) to make it easy to read for an official logbook.";
+    }
+
     const prompt = `You are an AI assistant helping a university student rewrite their SIWES (industrial training) daily log.
-Please rephrase the following text to sound professional, clear, and well-structured, suitable for an official logbook. Do not add any new facts, just improve the grammar and tone. Return ONLY the rewritten text, nothing else.
+${actionInstruction} Return ONLY the rewritten text, nothing else.
 
 Original text:
 ${text}`;

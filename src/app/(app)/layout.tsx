@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { BottomNav } from "@/components/BottomNav";
 import { Skeleton } from "@/components/Skeleton";
 import { SyncManager } from "@/components/SyncManager";
+import { Footer } from "@/components/Footer";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { status } = useSession();
@@ -35,6 +36,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className={`flex flex-col min-h-screen relative ${isChatSessionPage ? "" : "pb-24"}`}>
       <SyncManager />
       {children}
+      {!isChatSessionPage && <Footer />}
       {!isChatSessionPage && <BottomNav />}
     </div>
   );

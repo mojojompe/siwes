@@ -94,7 +94,7 @@ export default function TimetablePage() {
         className="glass-card rounded-[1.75rem] overflow-hidden flex-1 flex flex-col">
         
         {/* Calendar Header */}
-        <div className="bg-[#3B5BDB] px-5 py-4 flex items-center justify-between">
+        <div className="bg-[#6CAADE] px-5 py-4 flex items-center justify-between">
           <h2 className="heading-display text-[18px] text-white">
             {monthName} <span className="font-400 opacity-70">{year}</span>
           </h2>
@@ -111,7 +111,7 @@ export default function TimetablePage() {
         </div>
 
         {/* Day headers */}
-        <div className="grid grid-cols-7 bg-[#3B5BDB]/8 border-b border-black/5">
+        <div className="grid grid-cols-7 bg-[#6CAADE]/8 border-b border-black/5">
           {["S", "M", "T", "W", "T", "F", "S"].map((d, i) => (
             <div key={i} className="py-2.5 text-center text-[11px] font-bold text-black/35 uppercase tracking-wider">{d}</div>
           ))}
@@ -128,26 +128,26 @@ export default function TimetablePage() {
             return (
               <motion.div
                 key={d}
-                whileTap={{ scale: 0.94, backgroundColor: "rgba(59,91,219,0.06)" }}
+                whileTap={{ scale: 0.94, backgroundColor: "rgba(108,170,222,0.06)" }}
                 onClick={() => openDayView(d)}
-                className={`border-r border-b border-black/5 p-2 relative cursor-pointer group flex flex-col min-h-[72px] transition-colors hover:bg-[#3B5BDB]/4 ${
-                  isToday ? "bg-[#3B5BDB]/5" : ""
+                className={`border-r border-b border-black/5 p-2 relative cursor-pointer group flex flex-col min-h-[72px] transition-colors hover:bg-[#6CAADE]/4 ${
+                  isToday ? "bg-[#6CAADE]/5" : ""
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className={`text-[12px] font-bold w-6 h-6 flex items-center justify-center rounded-full transition-all ${
                     isToday
-                      ? "bg-[#3B5BDB] text-white shadow-[0_2px_8px_rgba(59,91,219,0.4)]"
-                      : "text-black/50 group-hover:text-[#3B5BDB]"
+                      ? "bg-[#6CAADE] text-white shadow-[0_2px_8px_rgba(108,170,222,0.4)]"
+                      : "text-black/50 group-hover:text-[#6CAADE]"
                   }`}>{d}</span>
                   {dtodos.length > 0 && (
-                    <span className="mono text-[9px] font-bold text-[#3B5BDB] opacity-60">{dtodos.length}</span>
+                    <span className="mono text-[9px] font-bold text-[#6CAADE] opacity-60">{dtodos.length}</span>
                   )}
                 </div>
                 <div className="space-y-0.5 overflow-hidden">
                   {dtodos.slice(0, 2).map(t => (
                     <div key={t._id} className={`text-[9px] px-1.5 py-0.5 rounded font-medium truncate ${
-                      t.completed ? "text-black/30 line-through" : "bg-[#3B5BDB]/10 text-[#3B5BDB]"
+                      t.completed ? "text-black/30 line-through" : "bg-[#6CAADE]/10 text-[#6CAADE]"
                     }`}>{t.title}</div>
                   ))}
                   {dtodos.length > 2 && (
@@ -194,7 +194,7 @@ export default function TimetablePage() {
                         className={`flex items-center gap-3 p-3.5 bg-white/60 rounded-[1rem] border border-white/80 group ${t.completed ? "opacity-50" : ""}`}>
                         <motion.button whileTap={{ scale: 0.8 }} transition={spring} onClick={() => toggleTodo(t._id, t.completed)}
                           className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${
-                            t.completed ? "bg-[#3B5BDB] border-[#3B5BDB] shadow-[0_2px_8px_rgba(59,91,219,0.3)]" : "border-black/20 hover:border-[#3B5BDB]/50"
+                            t.completed ? "bg-[#6CAADE] border-[#6CAADE] shadow-[0_2px_8px_rgba(108,170,222,0.3)]" : "border-black/20 hover:border-[#6CAADE]/50"
                           }`}>
                           {t.completed && (
                             <svg className="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none">

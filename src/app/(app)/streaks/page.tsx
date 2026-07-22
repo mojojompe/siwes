@@ -113,7 +113,7 @@ export default function StreaksPage() {
       {/* Heatmap/Recent Days */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3, ...spring }} className="glass-card rounded-[1.5rem] p-6 relative z-10 mb-6">
         <div className="flex items-center gap-3 mb-5">
-          <Calendar className="w-5 h-5 text-[#3B5BDB]" />
+          <Calendar className="w-5 h-5 text-[#6CAADE]" />
           <h3 className="text-[16px] font-bold text-[#1A1A2E]">Last 14 Days</h3>
         </div>
         
@@ -129,7 +129,7 @@ export default function StreaksPage() {
               >
                 {day.logged && <Check className="w-4 h-4 text-white" strokeWidth={3} />}
               </div>
-              <span className={`text-[10px] font-bold ${i === data.recentDays.length - 1 ? 'text-[#3B5BDB]' : 'text-black/30'}`}>
+              <span className={`text-[10px] font-bold ${i === data.recentDays.length - 1 ? 'text-[#6CAADE]' : 'text-black/30'}`}>
                 {i === data.recentDays.length - 1 ? 'Today' : day.dayOfWeek}
               </span>
             </div>

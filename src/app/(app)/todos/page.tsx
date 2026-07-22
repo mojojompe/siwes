@@ -76,7 +76,7 @@ export default function TodosPage() {
   const toggleTodo = async (id: string, current: boolean) => {
     if (!current) {
       if ("vibrate" in navigator) navigator.vibrate(50);
-      confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 }, colors: ['#3B5BDB', '#10B981', '#F59E0B'] });
+      confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 }, colors: ['#6CAADE', '#10B981', '#F59E0B'] });
     }
     setTodos(todos.map(t => t._id === id ? { ...t, completed: !current } : t));
     try {
@@ -124,7 +124,7 @@ export default function TodosPage() {
               <p className="text-[12px] text-black/40 mt-0.5">{pending.length} tasks remaining</p>
               <div className="mt-2 h-1.5 w-32 bg-black/6 rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full bg-[#3B5BDB] rounded-full"
+                  className="h-full bg-[#6CAADE] rounded-full"
                   initial={{ width: 0 }} animate={{ width: `${progress}%` }}
                   transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
                 />
@@ -157,8 +157,8 @@ export default function TodosPage() {
                 onClick={(e) => { e.stopPropagation(); toggleTodo(todo._id, todo.completed); }}
                 className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center flex-shrink-0 transition-all ${
                   todo.completed
-                    ? "bg-[#3B5BDB] border-[#3B5BDB] shadow-[0_2px_8px_rgba(59,91,219,0.3)]"
-                    : "border-black/20 hover:border-[#3B5BDB]/50"
+                    ? "bg-[#6CAADE] border-[#6CAADE] shadow-[0_2px_8px_rgba(108,170,222,0.3)]"
+                    : "border-black/20 hover:border-[#6CAADE]/50"
                 }`}
               >
                 {todo.completed && (
@@ -207,7 +207,7 @@ export default function TodosPage() {
       </div>
 
       <motion.button whileTap={{ scale: 0.93 }} transition={spring} onClick={openNew}
-        className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-[#3B5BDB] text-white flex items-center justify-center shadow-[0_8px_24px_rgba(59,91,219,0.4)] hover:bg-[#3451C9] transition-colors">
+        className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-[#6CAADE] text-white flex items-center justify-center shadow-[0_8px_24px_rgba(108,170,222,0.4)] hover:bg-[#4A8CC0] transition-colors">
         <Plus className="w-6 h-6" strokeWidth={2.5} />
       </motion.button>
 

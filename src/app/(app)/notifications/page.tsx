@@ -208,7 +208,7 @@ export default function NotificationsPage() {
     switch (type) {
       case "alarm": return <BellRing className="w-5 h-5 text-amber-500" />;
       case "task": return <Check className="w-5 h-5 text-emerald-500" />;
-      case "log": return <Calendar className="w-5 h-5 text-[#3B5BDB]" />;
+      case "log": return <Calendar className="w-5 h-5 text-[#6CAADE]" />;
       default: return <Info className="w-5 h-5 text-slate-500" />;
     }
   };
@@ -217,7 +217,7 @@ export default function NotificationsPage() {
     switch (type) {
       case "alarm": return "bg-amber-50 border-amber-100";
       case "task": return "bg-emerald-50 border-emerald-100";
-      case "log": return "bg-[#3B5BDB]/5 border-[#3B5BDB]/10";
+      case "log": return "bg-[#6CAADE]/5 border-[#6CAADE]/10";
       default: return "bg-slate-50 border-slate-100";
     }
   };
@@ -236,7 +236,7 @@ export default function NotificationsPage() {
           <h1 className="heading-display text-[22px] text-[#1A1A2E]">Notifications</h1>
         </div>
         {unreadCount > 0 && (
-          <motion.button whileTap={{ scale: 0.95 }} onClick={handleMarkAllRead} className="text-[12px] font-bold text-[#3B5BDB] px-3 py-1.5 bg-[#3B5BDB]/10 rounded-lg">
+          <motion.button whileTap={{ scale: 0.95 }} onClick={handleMarkAllRead} className="text-[12px] font-bold text-[#6CAADE] px-3 py-1.5 bg-[#6CAADE]/10 rounded-lg">
             Mark all read
           </motion.button>
         )}
@@ -261,7 +261,7 @@ export default function NotificationsPage() {
                 className={`glass-card rounded-[1.5rem] p-4 flex gap-4 cursor-pointer relative overflow-hidden group ${notif.isRead ? 'opacity-70' : 'bg-white/80'}`}
               >
                 {!notif.isRead && (
-                  <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-[#3B5BDB]" />
+                  <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-[#6CAADE]" />
                 )}
                 <div className={`w-12 h-12 rounded-xl flex-shrink-0 flex items-center justify-center border ${getBg(notif.type)}`}>
                   {getIcon(notif.type)}

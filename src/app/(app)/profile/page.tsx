@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Footer } from "@/components/Footer";
 import { Settings, Bell, Shield, Hash, BookOpen, ChevronRight, LogOut, X, Info, FileText, Crown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -35,7 +34,7 @@ export default function ProfilePage() {
   const user = session.user as any;
 
   const infoItems = [
-    { icon: Hash, label: "Matric Number", value: user.matricNumber, color: "text-[#3B5BDB]", bg: "bg-[#3B5BDB]/8" },
+    { icon: Hash, label: "Matric Number", value: user.matricNumber, color: "text-[#6CAADE]", bg: "bg-[#6CAADE]/8" },
     { icon: BookOpen, label: "Department", value: user.department, color: "text-violet-500", bg: "bg-violet-500/8" },
   ];
 
@@ -67,8 +66,8 @@ export default function ProfilePage() {
         >
           {/* Halo ring + clay avatar */}
           <div className="relative mb-4">
-            <div className="absolute inset-0 rounded-full border-2 border-dashed border-[#3B5BDB]/25 halo-ring" style={{ margin: "-8px" }} />
-            <div className="w-24 h-24 rounded-full overflow-hidden shadow-[0_8px_32px_rgba(59,91,219,0.2)] border-2 border-white bg-white">
+            <div className="absolute inset-0 rounded-full border-2 border-dashed border-[#6CAADE]/25 halo-ring" style={{ margin: "-8px" }} />
+            <div className="w-24 h-24 rounded-full overflow-hidden shadow-[0_8px_32px_rgba(108,170,222,0.2)] border-2 border-white bg-white">
               <img src="/clay-profile.png" alt="Profile" className="w-full h-full object-cover mix-blend-multiply" />
             </div>
           </div>
@@ -77,7 +76,7 @@ export default function ProfilePage() {
             {user.firstName} {user.lastName}
           </h2>
           <p className="text-[13px] text-black/40 font-medium mt-0.5">{user.department}</p>
-          <span className="mt-3 px-3 py-1.5 bg-[#3B5BDB]/8 text-[#3B5BDB] rounded-full text-[11px] font-bold mono border border-[#3B5BDB]/12">
+          <span className="mt-3 px-3 py-1.5 bg-[#6CAADE]/8 text-[#6CAADE] rounded-full text-[11px] font-bold mono border border-[#6CAADE]/12">
             {user.matricNumber}
           </span>
         </motion.div>
@@ -155,10 +154,6 @@ export default function ProfilePage() {
         </motion.button>
       </div>
 
-      <div className="mt-8">
-        <Footer />
-      </div>
-
       {/* Coming Soon Drawer */}
       <AnimatePresence>
         {showComingSoon && (
@@ -171,7 +166,7 @@ export default function ProfilePage() {
             >
               <div className="flex flex-col items-center text-center pt-2">
                 <div className="w-14 h-14 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-5 shadow-inner">
-                  <Info className="w-7 h-7 text-[#3B5BDB]" />
+                  <Info className="w-7 h-7 text-[#6CAADE]" />
                 </div>
                 <h3 className="heading-display text-[22px] text-[#1A1A2E] mb-2">Coming Soon</h3>
                 <p className="text-[14px] text-black/50 font-medium mb-8 leading-relaxed max-w-[260px]">
