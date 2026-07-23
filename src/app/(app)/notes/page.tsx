@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, X, Edit3, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
 import { RiveEmptyState } from "@/components/RiveEmptyState";
+import { Footer } from "@/components/Footer";
 
 interface Note { _id: string; title: string; content: string; updatedAt: string; }
 
@@ -130,6 +131,10 @@ export default function NotesPage() {
           </AnimatePresence>
         </div>
       )}
+
+      <div className="mt-8">
+        <Footer />
+      </div>
 
       {/* FAB */}
       <motion.button whileTap={{ scale: 0.93 }} transition={spring} onClick={openNew}

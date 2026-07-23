@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Clock } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
 import { RiveEmptyState } from "@/components/RiveEmptyState";
+import { Footer } from "@/components/Footer";
 
 interface Log { _id: string; date: string; dayOfWeek: string; description: string; weekNumber: number; }
 
@@ -142,6 +143,10 @@ export default function PreviousWeeksPage() {
           </div>
         </div>
       )}
+
+      <div className="mt-8">
+        <Footer />
+      </div>
     </main>
   );
 }

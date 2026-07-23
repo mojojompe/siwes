@@ -7,6 +7,7 @@ import { Plus, Trash2, X, Calendar, Loader2, Clock, Bell, Play, Pause, Square } 
 import { Skeleton } from "@/components/Skeleton";
 import { CircleProgress } from "@/components/CircleProgress";
 import { RiveEmptyState } from "@/components/RiveEmptyState";
+import { Footer } from "@/components/Footer";
 
 interface Todo { _id: string; title: string; completed: boolean; date?: string; reminderTime?: string; }
 
@@ -204,6 +205,10 @@ export default function TodosPage() {
             </motion.div>
           ))}
         </AnimatePresence>
+      </div>
+
+      <div className="mt-8">
+        <Footer />
       </div>
 
       <motion.button whileTap={{ scale: 0.93 }} transition={spring} onClick={openNew}

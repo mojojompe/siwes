@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Plus, X, Loader2, CheckSquare, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
+import { Footer } from "@/components/Footer";
 
 interface Todo { _id: string; title: string; completed: boolean; date?: string; reminderTime?: string; }
 const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
@@ -159,6 +160,10 @@ export default function TimetablePage() {
           })}
         </div>
       </motion.div>
+
+      <div className="mt-8">
+        <Footer />
+      </div>
 
       {/* Day View Sheet */}
       <AnimatePresence>

@@ -12,6 +12,7 @@ import { EmailModal } from "@/components/EmailModal";
 import { RiveEmptyState } from "@/components/RiveEmptyState";
 import ReactMarkdown from "react-markdown";
 import toast from "react-hot-toast";
+import { Footer } from "@/components/Footer";
 
 interface Log { _id: string; date: string; description: string; dayOfWeek: string; weekNumber: number; tags?: string[]; reminder?: string; mediaUrls?: string[]; }
 interface Todo { _id: string; title: string; completed: boolean; date: string; }
@@ -418,6 +419,10 @@ export default function HomePage() {
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+      
+      <div className="mt-8">
+        <Footer />
       </div>
 
       <motion.button whileTap={{ scale: 0.93 }} transition={spring} onClick={openNew} className="fixed bottom-24 right-5 z-30 w-14 h-14 rounded-full bg-[#6CAADE] text-white flex items-center justify-center shadow-[0_8px_24px_rgba(108,170,222,0.4)] hover:bg-[#4A8CC0] transition-colors">

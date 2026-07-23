@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ChevronLeft, Flame, Trophy, Calendar, Target, Check } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
+import { Footer } from "@/components/Footer";
 
 const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
 
@@ -178,6 +179,10 @@ export default function StreaksPage() {
           <span>More</span>
         </div>
       </motion.div>
+      
+      <div className="mt-8 relative z-10">
+        <Footer />
+      </div>
     </main>
   );
 }

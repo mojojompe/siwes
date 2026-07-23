@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Bell, BellRing, Check, Info, Calendar, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/Skeleton";
+import { Footer } from "@/components/Footer";
 
 interface Notification {
   _id: string;
@@ -277,6 +278,10 @@ export default function NotificationsPage() {
             ))
           )}
         </AnimatePresence>
+      </div>
+
+      <div className="mt-8">
+        <Footer />
       </div>
 
       {/* Detail Modal */}

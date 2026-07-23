@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Lightbulb, FileText, Stamp, Briefcase, GraduationCap, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lightbulb, Book, Briefcase, FileText, CheckCircle2, AlertTriangle, Scale, Target, Settings, Search, GraduationCap, X } from "lucide-react";
+import { Footer } from "@/components/Footer";
 
 const spring = { type: "spring" as const, stiffness: 400, damping: 30 };
 
@@ -112,6 +113,10 @@ export default function TipsPage() {
             </motion.div>
           );
         })}
+      </div>
+
+      <div className="mt-8">
+        <Footer />
       </div>
 
       <AnimatePresence>
