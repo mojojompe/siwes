@@ -28,6 +28,24 @@ const STATIC_UPDATES: Notification[] = [
     createdAt: new Date().toISOString()
   },
   {
+    _id: "static-update-ilesure-launch",
+    title: "iléSure has Officially Launched! 🚀🏡",
+    message: "The wait is over! iléSure is now live. Discover and secure your perfect housing seamlessly. Log in now at users.ilesure.com and experience the future of finding a home.",
+    isRead: false,
+    type: "alarm",
+    actionLink: "https://users.ilesure.com",
+    createdAt: new Date().toISOString()
+  },
+  {
+    _id: "static-update-ai-reports",
+    title: "Generate SIWES Reports & Slides instantly! 📄",
+    message: "You can now use your logs to automatically generate full SIWES Report Drafts and Presentation Slides! Head over to the Context-Aware AI Chat and tap the new generation buttons to try it out.",
+    isRead: false,
+    type: "info",
+    actionLink: "/chat",
+    createdAt: new Date().toISOString()
+  },
+  {
     _id: "static-update-pro-live",
     title: "SIWES Tracker Pro is Live! 👑",
     message: "Unlock Premium features including Media Uploads, unlimited Context-Aware AI Chat, and the AI log rephraser! Tap Profile to upgrade.",
@@ -120,18 +138,18 @@ export default function NotificationsPage() {
         setNotifications(merged);
 
         // SYSTEM LEVEL PUSH NOTIFICATION
-        const hasPushedIlesure = localStorage.getItem("pushed_ilesure");
-        if (!hasPushedIlesure && !readStaticIds.includes("static-update-ilesure")) {
+        const hasPushedIlesureLaunch = localStorage.getItem("pushed_ilesure_launch");
+        if (!hasPushedIlesureLaunch && !readStaticIds.includes("static-update-ilesure-launch")) {
           if ("Notification" in window) {
             const sendPush = () => {
-              const notif = new Notification("iléSure Waitlist is Open! 🏡", {
-                body: "Experience a smarter way to discover and secure housing. Join now for early access!",
+              const notif = new Notification("iléSure is Live! 🚀🏡", {
+                body: "The wait is over! Experience a smarter way to discover and secure housing. Log in now!",
                 icon: "/icon.png"
               });
               notif.onclick = () => {
-                window.open("https://ilesure.com/discover", "_blank");
+                window.open("https://users.ilesure.com", "_blank");
               };
-              localStorage.setItem("pushed_ilesure", "true");
+              localStorage.setItem("pushed_ilesure_launch", "true");
             };
 
             if (Notification.permission === "granted") {

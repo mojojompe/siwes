@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Bot, User, Loader2, ArrowLeft, Mic, MicOff, FileText, CalendarPlus, Sparkles } from "lucide-react";
+import { Send, Bot, User, Loader2, ArrowLeft, Mic, MicOff, FileText, CalendarPlus, Sparkles, Presentation } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import ReactMarkdown from "react-markdown";
 import toast from "react-hot-toast";
+import { exportToDocx, exportToPdf } from "@/lib/exportUtils";
 
 interface Message {
   _id?: string;
@@ -175,6 +176,18 @@ export default function ChatSessionPage() {
     }
   };
 
+  const handleExportDocx = async (content: string) => {
+    const success = await exportToDocx(content, "SIWES_Document");
+    if (success) toast.success("Exported to DOCX!");
+    else toast.error("Failed to export DOCX. Make sure docx library is installed.");
+  };
+
+  const handleExportPdf = async (content: string) => {
+    const success = await exportToPdf(content, "SIWES_Document");
+    if (success) toast.success("Exported to PDF!");
+    else toast.error("Failed to export PDF. Make sure html2pdf.js is installed.");
+  };
+
   if (loading) return <main className="flex-1 flex items-center justify-center min-h-screen mesh-bg"><Loader2 className="w-8 h-8 text-[#6CAADE] animate-spin" /></main>;
 
   return (
@@ -202,12 +215,26 @@ export default function ChatSessionPage() {
               Ask me to brainstorm logbook entries, organize tasks, or explain university concepts.
             </p>
 
-            <button 
-              onClick={() => handleSend("Summarize my recent logs", "summarize-logs")}
-              className="px-4 py-2 bg-white/60 border border-black/10 rounded-full text-[13px] font-bold text-[#6CAADE] shadow-sm hover:bg-white transition-colors flex items-center gap-2 mx-auto"
-            >
-              <Sparkles className="w-4 h-4" /> Summarize my recent logs
-            </button>
+            <div className="flex flex-col gap-3 items-center mt-6 max-w-[280px] mx-auto">
+              <button 
+                onClick={() => handleSend("Summarize my recent logs", "summarize-logs")}
+                className="w-full px-4 py-2 bg-white/60 border border-black/10 rounded-full text-[13px] font-bold text-[#6CAADE] shadow-sm hover:bg-white transition-colors flex items-center justify-center gap-2"
+              >
+                <Sparkles className="w-4 h-4" /> Summarize my recent logs
+              </button>
+              <button 
+                onClick={() => handleSend("Generate Siwes Report Draft", "generate-report")}
+                className="w-full px-4 py-2 bg-white/60 border border-black/10 rounded-full text-[13px] font-bold text-[#6CAADE] shadow-sm hover:bg-white transition-colors flex items-center justify-center gap-2"
+              >
+                <FileText className="w-4 h-4" /> Generate Siwes Report Draft
+              </button>
+              <button 
+                onClick={() => handleSend("Generate Siwes Presentation Draft", "generate-presentation")}
+                className="w-full px-4 py-2 bg-white/60 border border-black/10 rounded-full text-[13px] font-bold text-[#6CAADE] shadow-sm hover:bg-white transition-colors flex items-center justify-center gap-2"
+              >
+                <Presentation className="w-4 h-4" /> Generate Presentation Draft
+              </button>
+            </div>
           </motion.div>
         )}
 
@@ -226,12 +253,18 @@ export default function ChatSessionPage() {
               </div>
               
               {msg.role === "model" && (
-                <div className="flex gap-2 pl-11 mt-1 opacity-0 hover:opacity-100 transition-opacity" style={{ opacity: 1 }}>
+                <div className="flex flex-wrap gap-2 pl-11 mt-1 opacity-0 hover:opacity-100 transition-opacity" style={{ opacity: 1 }}>
                   <button onClick={() => exportToNote(msg.content)} className="text-[10px] font-bold text-black/40 hover:text-[#6CAADE] flex items-center gap-1 bg-white/50 px-2 py-1 rounded-md border border-black/5">
                     <FileText className="w-3 h-3" /> Export to Note
                   </button>
                   <button onClick={() => exportToLog(msg.content)} className="text-[10px] font-bold text-black/40 hover:text-[#6CAADE] flex items-center gap-1 bg-white/50 px-2 py-1 rounded-md border border-black/5">
                     <CalendarPlus className="w-3 h-3" /> Export to Log
+                  </button>
+                  <button onClick={() => handleExportDocx(msg.content)} className="text-[10px] font-bold text-[#6CAADE] hover:text-[#5A9ADE] flex items-center gap-1 bg-[#6CAADE]/10 px-2 py-1 rounded-md border border-[#6CAADE]/20">
+                    <FileText className="w-3 h-3" /> Export to DOCX
+                  </button>
+                  <button onClick={() => handleExportPdf(msg.content)} className="text-[10px] font-bold text-[#6CAADE] hover:text-[#5A9ADE] flex items-center gap-1 bg-[#6CAADE]/10 px-2 py-1 rounded-md border border-[#6CAADE]/20">
+                    <FileText className="w-3 h-3" /> Export to PDF
                   </button>
                 </div>
               )}
